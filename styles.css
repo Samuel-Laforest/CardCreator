@@ -240,6 +240,7 @@ body {
   position: relative;
   overflow: hidden;
   background-color: #f5f5f5;
+  z-index: 50;
 }
 
 .placeholder-icon {
@@ -368,22 +369,19 @@ body {
   inset: 0;
   pointer-events: none;
   border-radius: 12px;
-  transition: all 0.15s ease-out, opacity 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .effect-layer.layer-1 {
   z-index: 10;
-  transition: all 0.2s ease-out;
 }
 
 .effect-layer.layer-2 {
   z-index: 11;
-  transition: all 0.08s ease-out;
 }
 
 .effect-layer.layer-3 {
   z-index: 12;
-  transition: all 0.08s ease-out;
 }
 
 /* ========== TEXTURE LAYER ========== */
@@ -413,376 +411,270 @@ body {
 
 .particle {
   position: absolute;
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0;
   animation: particleFloat 3s ease-in-out infinite;
   filter: drop-shadow(0 0 3px currentColor);
-  will-change: transform, opacity;
 }
 
 .particle-0 {
-  font-size: 9px;
-  animation-delay: 0s;
+  font-size: 10px;
 }
 
 .particle-1 {
-  font-size: 13px;
-  animation-delay: 0.2s;
+  font-size: 14px;
 }
 
 .particle-2 {
   font-size: 8px;
-  animation-delay: 0.4s;
 }
 
-/* Fire particles - rise up from bottom left */
+/* Fire particles - rise up */
 .particles-fire .particle {
+  bottom: -20px;
   animation-name: particleRise;
   color: #ff6b35;
-  filter: drop-shadow(0 0 5px #ff4500) drop-shadow(0 0 8px #ff6b35);
-  font-size: 14px;
-}
-
-.particles-fire .particle-0 {
-  font-size: 12px;
-}
-
-.particles-fire .particle-1 {
-  font-size: 16px;
-}
-
-.particles-fire .particle-2 {
-  font-size: 11px;
+  filter: drop-shadow(0 0 4px #ff4500);
 }
 
 @keyframes particleRise {
   0% {
-    transform: translateY(400px) translateX(-100px) scale(0.7) rotate(0deg);
+    transform: translateY(0) scale(1);
     opacity: 0;
   }
 
-  15% {
-    opacity: 1;
-  }
-
-  85% {
+  10% {
     opacity: 0.9;
   }
 
+  90% {
+    opacity: 0.7;
+  }
+
   100% {
-    transform: translateY(-100px) translateX(50px) scale(0.3) rotate(180deg);
+    transform: translateY(-400px) scale(0.5);
     opacity: 0;
   }
 }
 
 /* Water particles - bubbles */
 .particles-water .particle {
+  bottom: -20px;
   animation-name: particleBubble;
   color: #00bcd4;
-  filter: drop-shadow(0 0 4px #2196f3) drop-shadow(0 0 6px #00bcd4);
+  filter: drop-shadow(0 0 3px #2196f3);
 }
 
 @keyframes particleBubble {
   0% {
-    transform: translateY(450px) translateX(0) scale(0.3);
+    transform: translateY(0) translateX(0) scale(0.5);
     opacity: 0;
   }
 
-  15% {
-    opacity: 0.9;
+  10% {
+    opacity: 0.8;
   }
 
   50% {
-    transform: translateY(200px) translateX(25px) scale(1.2);
-    opacity: 1;
+    transform: translateY(-200px) translateX(15px) scale(1);
   }
 
   100% {
-    transform: translateY(-50px) translateX(-20px) scale(0.5);
+    transform: translateY(-400px) translateX(-10px) scale(0.8);
     opacity: 0;
   }
 }
 
 /* Ice particles - snowfall */
 .particles-ice .particle {
+  top: -20px;
   animation-name: particleSnow;
   color: #81d4fa;
-  filter: drop-shadow(0 0 4px #e3f2fd) drop-shadow(0 0 6px #81d4fa);
+  filter: drop-shadow(0 0 3px #e3f2fd);
 }
 
 @keyframes particleSnow {
   0% {
-    transform: translateY(-200px) translateX(0) rotate(0deg) scale(0.9);
-    opacity: 0.8;
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
   }
 
   10% {
-    opacity: 1;
-  }
-
-  90% {
     opacity: 0.9;
   }
 
   100% {
-    transform: translateY(250px) translateX(40px) rotate(360deg) scale(1.1);
+    transform: translateY(450px) translateX(30px) rotate(360deg);
     opacity: 0;
   }
 }
 
-/* Nature particles - floating leaves (covers whole card) */
+/* Nature particles - floating leaves */
 .particles-nature .particle {
+  top: 50%;
   animation-name: particleLeaf;
   color: #4caf50;
-  filter: drop-shadow(0 0 4px #8bc34a) drop-shadow(0 0 6px #4caf50);
+  filter: drop-shadow(0 0 2px #8bc34a);
 }
 
 @keyframes particleLeaf {
   0% {
-    transform: translateY(-180px) translateX(-100px) rotate(0deg) scale(0.6);
+    transform: translateY(0) translateX(-50px) rotate(0deg);
     opacity: 0;
   }
 
-  15% {
-    opacity: 1;
+  20% {
+    opacity: 0.8;
   }
 
-  85% {
-    opacity: 0.9;
+  80% {
+    opacity: 0.6;
   }
 
   100% {
-    transform: translateY(180px) translateX(100px) rotate(720deg) scale(1.3);
+    transform: translateY(100px) translateX(50px) rotate(180deg);
     opacity: 0;
   }
 }
 
-/* Electric particles - powerful lightning bolts */
+/* Electric particles - sparks */
 .particles-electric .particle {
+  top: 50%;
   animation-name: particleSpark;
   color: #ffeb3b;
-  filter: drop-shadow(0 0 8px #ffc107) drop-shadow(0 0 12px #ffeb3b) brightness(1.3);
+  filter: drop-shadow(0 0 5px #ffc107);
 }
 
 @keyframes particleSpark {
-  0% {
-    transform: translateX(-150px) translateY(-30px) scale(0) rotate(-20deg);
+
+  0%,
+  100% {
+    transform: scale(0);
     opacity: 0;
   }
 
   5% {
-    transform: translateX(-140px) translateY(-35px) scale(1.8) rotate(-15deg);
+    transform: scale(1.5);
     opacity: 1;
+  }
+
+  10% {
+    transform: scale(0.8);
+    opacity: 0.8;
   }
 
   15% {
-    transform: translateX(-100px) translateY(20px) scale(1.4) rotate(10deg);
-    opacity: 1;
-  }
-
-  30% {
-    transform: translateX(-40px) translateY(-25px) scale(1.6) rotate(-5deg);
-    opacity: 1;
-  }
-
-  50% {
-    transform: translateX(30px) translateY(15px) scale(1.5) rotate(15deg);
-    opacity: 0.95;
-  }
-
-  70% {
-    transform: translateX(100px) translateY(-20px) scale(1.3) rotate(-10deg);
-    opacity: 0.7;
-  }
-
-  85% {
-    transform: translateX(150px) translateY(10px) scale(1) rotate(5deg);
-    opacity: 0.4;
-  }
-
-  100% {
-    transform: translateX(200px) translateY(-15px) scale(0) rotate(20deg);
+    transform: scale(1.2);
     opacity: 0;
   }
 }
 
-/* Mystic particles - spiral ascension with shimmer */
+/* Mystic particles - magical float */
 .particles-mystic .particle {
+  top: 50%;
   animation-name: particleMagic;
   color: #9c27b0;
-  filter: drop-shadow(0 0 6px #e91e63) drop-shadow(0 0 10px #9c27b0) brightness(1.2);
+  filter: drop-shadow(0 0 4px #e91e63);
 }
 
 @keyframes particleMagic {
   0% {
-    transform: translateY(400px) translateX(0) rotate(0deg) scale(0.2);
+    transform: translateY(0) scale(0);
     opacity: 0;
   }
 
   20% {
-    transform: translateY(300px) translateX(40px) rotate(72deg) scale(0.9);
-    opacity: 1;
-  }
-
-  40% {
-    transform: translateY(150px) translateX(-20px) rotate(144deg) scale(1.2);
-    opacity: 1;
-  }
-
-  60% {
-    transform: translateY(0px) translateX(35px) rotate(216deg) scale(1.1);
-    opacity: 0.95;
+    transform: translateY(-20px) scale(1);
+    opacity: 0.9;
   }
 
   80% {
-    transform: translateY(-150px) translateX(-25px) rotate(288deg) scale(0.9);
-    opacity: 0.8;
+    transform: translateY(-60px) scale(0.8);
+    opacity: 0.7;
   }
 
   100% {
-    transform: translateY(-300px) translateX(0px) rotate(360deg) scale(0.1);
+    transform: translateY(-100px) scale(0);
     opacity: 0;
   }
 }
 
-/* Shadow particles - creeping darkness */
+/* Shadow particles - fade */
 .particles-shadow .particle {
+  top: 20%;
   animation-name: particleShadow;
   color: #424242;
-  filter: drop-shadow(0 0 4px #000) blur(1px);
+  filter: drop-shadow(0 0 3px #000);
 }
 
 @keyframes particleShadow {
   0% {
-    transform: translateY(-400px) translateX(0) scale(0.3);
+    transform: scale(1) translateY(0);
     opacity: 0;
   }
 
-  20% {
-    transform: translateY(-250px) translateX(50px) scale(0.9);
-    opacity: 0.8;
-  }
-
-  40% {
-    transform: translateY(-100px) translateX(-30px) scale(1.4);
+  30% {
     opacity: 0.6;
   }
 
-  60% {
-    transform: translateY(80px) translateX(40px) scale(1.9);
-    opacity: 0.4;
-  }
-
-  80% {
-    transform: translateY(250px) translateX(-20px) scale(2.4);
-    opacity: 0.2;
-  }
-
   100% {
-    transform: translateY(400px) translateX(0px) scale(3);
+    transform: scale(2) translateY(50px);
     opacity: 0;
   }
 }
 
-/* Fighting particles - explosive burst with shockwave */
+/* Fighting particles - impact */
 .particles-fighting .particle {
+  top: 50%;
   animation-name: particleImpact;
   color: #f44336;
-  filter: drop-shadow(0 0 6px #ff5722) drop-shadow(0 0 10px #f44336) brightness(1.3);
+  filter: drop-shadow(0 0 3px #ff5722);
 }
 
 @keyframes particleImpact {
-  0% {
-    transform: translate(0, 0) scale(0) rotate(0deg);
+
+  0%,
+  100% {
+    transform: scale(0) rotate(0deg);
     opacity: 0;
   }
 
   10% {
-    transform: translate(0, 0) scale(2.5) rotate(45deg);
+    transform: scale(1.5) rotate(15deg);
     opacity: 1;
   }
 
-  25% {
-    transform: translate(calc(var(--fx, 0px) * 0.5), calc(var(--fy, 0px) * 0.5)) scale(2) rotate(90deg);
-    opacity: 1;
-  }
-
-  50% {
-    transform: translate(calc(var(--fx, 0px) * 1.2), calc(var(--fy, 0px) * 1.2)) scale(1.3) rotate(180deg);
+  30% {
+    transform: scale(1) rotate(-10deg);
     opacity: 0.8;
   }
 
-  75% {
-    transform: translate(calc(var(--fx, 0px) * 1.8), calc(var(--fy, 0px) * 1.8)) scale(0.7) rotate(270deg);
-    opacity: 0.3;
-  }
-
-  100% {
-    transform: translate(calc(var(--fx, 0px) * 2.5), calc(var(--fy, 0px) * 2.5)) scale(0) rotate(360deg);
+  50% {
     opacity: 0;
   }
 }
 
-.particles-fighting .particle:nth-child(1) {
-  --fx: 70px;
-  --fy: -70px;
-}
-
-.particles-fighting .particle:nth-child(2) {
-  --fx: -70px;
-  --fy: -70px;
-}
-
-.particles-fighting .particle:nth-child(3) {
-  --fx: 70px;
-  --fy: 70px;
-}
-
-.particles-fighting .particle:nth-child(4) {
-  --fx: -70px;
-  --fy: 70px;
-}
-
-.particles-fighting .particle:nth-child(5) {
-  --fx: 90px;
-  --fy: 0px;
-}
-
-.particles-fighting .particle:nth-child(6) {
-  --fx: -90px;
-  --fy: 0px;
-}
-
-/* Metal particles - precise orbital rotation */
+/* Metal particles - gear rotation */
 .particles-metal .particle {
+  top: 50%;
   animation-name: particleGear;
   color: #9e9e9e;
-  filter: drop-shadow(0 0 4px #757575) drop-shadow(0 0 6px #9e9e9e);
+  filter: drop-shadow(0 0 2px #616161);
 }
 
 @keyframes particleGear {
   0% {
-    transform: rotate(0deg) translateX(80px) rotate(0deg) scale(0.7);
+    transform: rotate(0deg) scale(0.8);
     opacity: 0.3;
   }
 
-  25% {
-    transform: rotate(90deg) translateX(80px) rotate(-90deg) scale(1.2);
-    opacity: 0.9;
-  }
-
   50% {
-    transform: rotate(180deg) translateX(80px) rotate(-180deg) scale(1.1);
-    opacity: 1;
-  }
-
-  75% {
-    transform: rotate(270deg) translateX(80px) rotate(-270deg) scale(1.2);
-    opacity: 0.9;
+    transform: rotate(180deg) scale(1);
+    opacity: 0.7;
   }
 
   100% {
-    transform: rotate(360deg) translateX(80px) rotate(-360deg) scale(0.7);
+    transform: rotate(360deg) scale(0.8);
     opacity: 0.3;
   }
 }
@@ -794,19 +686,6 @@ body {
   animation-name: particleRadiate;
   color: #fff59d;
   filter: drop-shadow(0 0 5px #ffeb3b);
-  font-size: 14px;
-}
-
-.particles-light .particle-0 {
-  font-size: 12px;
-}
-
-.particles-light .particle-1 {
-  font-size: 16px;
-}
-
-.particles-light .particle-2 {
-  font-size: 11px;
 }
 
 @keyframes particleRadiate {
@@ -866,72 +745,55 @@ body {
   --dy: -56px;
 }
 
-/* Dragon particles - majestic S-curve flight */
+/* Dragon particles - majestic float */
 .particles-dragon .particle {
-  left: -20px;
+  top: 30%;
   animation-name: particleDragon;
   color: #673ab7;
-  filter: drop-shadow(0 0 5px #9c27b0) drop-shadow(0 0 8px #673ab7);
+  filter: drop-shadow(0 0 4px #9c27b0);
 }
 
 @keyframes particleDragon {
   0% {
-    transform: translateX(0) translateY(0) scale(0.4) rotate(0deg);
+    transform: translateY(0) scale(0.5);
     opacity: 0;
   }
 
-  25% {
-    transform: translateX(120px) translateY(-80px) scale(1.2) rotate(15deg);
-    opacity: 0.9;
-  }
-
-  50% {
-    transform: translateX(200px) translateY(20px) scale(1) rotate(-10deg);
-    opacity: 1;
-  }
-
-  75% {
-    transform: translateX(320px) translateY(-60px) scale(1.1) rotate(10deg);
+  30% {
     opacity: 0.8;
+    transform: translateY(-30px) scale(1);
+  }
+
+  70% {
+    opacity: 0.6;
+    transform: translateY(-60px) scale(0.9);
   }
 
   100% {
-    transform: translateX(450px) translateY(0px) scale(0.3) rotate(0deg);
+    transform: translateY(-100px) scale(0.3);
     opacity: 0;
   }
 }
 
-/* Neutral particles - gentle pulse */
+/* Neutral particles - subtle */
 .particles-neutral .particle {
+  top: 50%;
   animation-name: particleNeutral;
   color: #9e9e9e;
   filter: drop-shadow(0 0 2px #bdbdbd);
 }
 
 @keyframes particleNeutral {
-  0% {
-    transform: scale(0.7);
-    opacity: 0.15;
-  }
 
-  25% {
-    transform: scale(1);
-    opacity: 0.45;
+  0%,
+  100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.2;
   }
 
   50% {
-    transform: scale(1.15);
-    opacity: 0.6;
-  }
-
-  75% {
-    transform: scale(1);
-    opacity: 0.45;
-  }
-
-  100% {
-    transform: scale(0.7);
-    opacity: 0.15;
+    transform: translateY(-20px) scale(1);
+    opacity: 0.5;
   }
 }
 
@@ -2180,4 +2042,85 @@ body.is-capturing .particle {
   to {
     transform: translateY(0);
   }
+}
+
+/* Tabs */
+.editor-panel {
+  min-width: 500px;
+}
+
+.editor-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  color: #1a1a2e;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Collapsible Section */
+.collapsible-section {
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.collapsible-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.collapsible-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.collapsible-content {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
