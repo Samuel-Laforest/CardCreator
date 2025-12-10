@@ -1620,7 +1620,7 @@
                 </div>))}
             </div>
             {/* Footer */}
-            <div className="card-footer" style={{ color: cardData.statsColor || 'inherit', fontSize: `${cardData.statsSize}px`, fontWeight: cardData.statsWeight }}>
+            <div className="card-footer" style={{ '--stats-color': cardData.statsColor || undefined, color: cardData.statsColor || 'inherit', fontSize: `${cardData.statsSize}px`, fontWeight: cardData.statsWeight }}>
               {cardData.showWeakRes && (<div className="footer-stats"><div className="stat"><span className="stat-label">{t.card.weakness} </span><span className="stat-icon">{weaknessIcon}</span><span className="stat-value weakness"> ×2</span></div><div className="stat"><span className="stat-label">{t.card.resistance} </span><span className="stat-icon">{resistanceIcon}</span><span className="stat-value resistance"> -30</span></div></div>)}
               {cardData.showRetreat && (<div className="retreat-cost"><span className="stat-label">{t.card.cost} </span>
                 {[...Array(Math.max(0, cardData.retreatCost))].map((_, i) => (<span key={i} className="retreat-icon">⚪</span>))}
