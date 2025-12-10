@@ -2082,7 +2082,6 @@ body.is-capturing .particle {
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   transition: all 0.2s;
 }
 
