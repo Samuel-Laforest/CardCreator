@@ -435,7 +435,7 @@ body.is-capturing .no-capture {
 }
 
 .stat-label {
-  color: #888;
+  color: var(--stats-color, #888);
 }
 
 .stat-icon {
@@ -443,12 +443,12 @@ body.is-capturing .no-capture {
 }
 
 .stat-value.weakness {
-  color: #e53935;
+  color: var(--stats-color, #e53935);
   font-weight: 700;
 }
 
 .stat-value.resistance {
-  color: #43a047;
+  color: var(--stats-color, #43a047);
   font-weight: 700;
 }
 
