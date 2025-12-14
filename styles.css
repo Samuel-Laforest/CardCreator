@@ -58,6 +58,19 @@ body.is-capturing .no-capture {
   display: none !important;
 }
 
+/* Freeze all transitions and animations during capture */
+body.is-capturing .card-container,
+body.is-capturing .card-flipper,
+body.is-capturing .game-card,
+body.is-capturing .game-card-back {
+  transition: none !important;
+  animation: none !important;
+}
+
+body.is-capturing .card-container {
+  transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1) !important;
+}
+
 /* Language Selector */
 .language-dropdown {
   position: absolute;
@@ -158,6 +171,41 @@ body.is-capturing .no-capture {
   box-shadow: none;
 }
 
+.header-btn.json {
+  /* Orange gradient */
+  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+  color: white;
+  box-shadow: none;
+}
+
+.header-btn.download {
+  /* Royal Blue gradient */
+  background: linear-gradient(135deg, #4364f7 0%, #6fb1fc 100%);
+  color: white;
+  box-shadow: none;
+}
+
+/* Compatibility for header-btn inside download-buttons */
+.download-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.download-buttons .header-btn {
+  flex: 0 1 auto;
+  min-width: auto;
+  justify-content: center;
+  /* margin: 0; already default */
+  width: auto;
+}
+
+.action-grid {
+  display: none;
+}
+
 .header-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -250,6 +298,11 @@ body.is-capturing .no-capture {
   position: relative;
   overflow: hidden;
   border: 5px solid;
+  /* Backface visibility for 3D flip */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-color: #1a1a2e;
+  /* Ensure no transparency leaks */
   box-shadow:
     0 0 20px rgba(0, 0, 0, 0.5),
     0 10px 40px rgba(0, 0, 0, 0.4),
@@ -262,6 +315,29 @@ body.is-capturing .no-capture {
     0 0 30px rgba(0, 0, 0, 0.4),
     0 15px 50px rgba(0, 0, 0, 0.35),
     inset 0 0 80px rgba(255, 255, 255, 0.08);
+}
+
+.game-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
+  background-color: #1a1a2e;
+  border: 5px solid #ffd700;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+  /* Behind front face initially, but transform handles visibility */
 }
 
 .card-inner {
@@ -2091,6 +2167,78 @@ body.is-capturing .particle {
 }
 
 /* Modal Button Styles */
+.download-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 500px) {
+  .download-options-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.download-option-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: white;
+  width: 100%;
+}
+
+.download-option-card:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.download-option-card:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.download-option-card:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.download-option-card .option-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.download-option-card .option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.download-option-card .option-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+
+.download-option-card .option-desc {
+  font-size: 12px;
+  color: #a0a0b0;
+  line-height: 1.3;
+}
+
+.modal-body .download-buttons {
+  /* Deprecated in new design but keeping for safety if rollback needed */
+  display: none !important;
+}
+
 .secondary-button {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -2754,6 +2902,22 @@ emoji-picker {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
+  }
+
+  .download-buttons .header-btn {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 14px;
+    background-size: 100% auto;
+  }
+
+  .download-buttons .header-btn .btn-text {
+    display: inline-block;
+    /* Force show text in action area */
+    font-size: 13px;
   }
 
   .download-btn {
