@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Notice - Card Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .lang-select {
+            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+            color: #fff;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px 35px 10px 15px;
+            font-size: 15px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffd700' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .lang-select:hover {
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+
+        .lang-select:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .lang-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0a0c0;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #fff;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        p,
+        li {
+            line-height: 1.7;
+            margin-bottom: 12px;
+            color: #c0c0d0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .highlight {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .placeholder {
+            background: rgba(255, 100, 100, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #ff9999;
+        }
+
+        a {
+            color: #ffd700;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-row">
+            <a href="index.html" class="back-link" id="backLink">← Back to Card Creator</a>
+            <select id="langSelect" class="lang-select"></select>
+        </div>
+
+        <h1 id="pageTitle">📋 Legal Notice & Terms</h1>
+        <p class="subtitle" id="lastUpdate">Last updated: December 2024</p>
+
+        <h2 id="h1">1. Publisher</h2>
+        <p id="p1"></p>
+
+        <h2 id="h2">2. Hosting</h2>
+        <p id="p2"></p>
+
+        <h2 id="h3">3. Terms of Use</h2>
+        <div class="highlight" id="highlight1"></div>
+        <ul id="ul1"></ul>
+
+        <h2 id="h4">4. Intellectual Property</h2>
+        <p id="p4a"></p>
+        <p id="p4b"></p>
+
+        <h2 id="h5">5. Personal Data & GDPR</h2>
+        <div class="highlight" id="highlight2"></div>
+        <ul id="ul2"></ul>
+        <p id="p5"></p>
+
+        <h2 id="h6">6. Limitation of Liability</h2>
+        <ul id="ul3"></ul>
+
+        <h2 id="h7">7. Modifications</h2>
+        <p id="p7"></p>
+
+        <h2 id="h8">8. Contact</h2>
+        <p id="p8"></p>
+
+        <footer id="footer">© 2024 Card Creator - All rights reserved</footer>
+    </div>
+
+    <script>
+        const LANGUAGES = {
+            en: { name: 'English', flag: '🇬🇧' },
+            fr: { name: 'Français', flag: '🇫🇷' },
+            es: { name: 'Español', flag: '🇪🇸' },
+            de: { name: 'Deutsch', flag: '🇩🇪' },
+            ru: { name: 'Русский', flag: '🇷🇺' },
+            ja: { name: '日本語', flag: '🇯🇵' },
+            zh: { name: '中文', flag: '🇨🇳' }
+        };
+
+        const TRANSLATIONS = {
+            en: {
+                backLink: '← Back to Card Creator',
+                pageTitle: '📋 Legal Notice & Terms',
+                lastUpdate: 'Last updated: December 2025',
+                h1: '1. Publisher',
+                p1: '<strong>Name / Alias:</strong> <span class="placeholder">[TO COMPLETE]</span><br><strong>Email:</strong> <span class="placeholder">[TO COMPLETE]</span><br><strong>Status:</strong> Individual / Self-employed',
+                h2: '2. Hosting',
+                p2: '<strong>Host:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>Address:</strong> <span class="placeholder">[Host address]</span>',
+                h3: '3. Terms of Use',
+                highlight1: 'Card Creator is a free tool for creating custom collectible cards.',
+                ul1: ['The service is provided "as is", without any guarantee of permanent availability.', 'The user is solely responsible for the content they create (images, texts).', 'It is forbidden to create illegal, defamatory content or content that infringes on the rights of others.', 'User creations belong entirely to the user.'],
+                h4: '4. Intellectual Property',
+                p4a: 'The Card Creator interface and code are the property of the publisher. Users retain all rights to the cards they create with this tool.',
+                p4b: '<strong>Important note:</strong> The user is responsible for ensuring they hold the rights to the images they import. Card Creator does not claim any rights over user creations.',
+                h5: '5. Personal Data & GDPR',
+                highlight2: '<strong>We do not collect any personal data.</strong>',
+                ul2: ['No user account is required.', 'No cookies are placed by our site.', 'All data (created cards) is stored locally on your device (IndexedDB).', 'No information is transmitted to our servers.'],
+                p5: '<strong>Third-party services:</strong> This site uses Google Fonts to display fonts. Google may collect your IP address when loading fonts. For more information: <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>.',
+                h6: '6. Limitation of Liability',
+                ul3: ['The publisher cannot be held responsible for direct or indirect damages related to the use of the site.', 'The publisher does not guarantee the backup of locally stored data.', 'Users are encouraged to regularly export their creations.'],
+                h7: '7. Modifications',
+                p7: 'The publisher reserves the right to modify these terms at any time. Users will be informed of major changes.',
+                h8: '8. Contact',
+                p8: 'For any questions regarding these terms, contact: <span class="placeholder">[Your email]</span>',
+                footer: '© 2024 Card Creator - All rights reserved'
+            },
+            fr: {
+                backLink: '← Retour au Card Creator',
+                pageTitle: '📋 Mentions légales & CGU',
+                lastUpdate: 'Dernière mise à jour : Décembre 2025',
+                h1: '1. Éditeur du site',
+                p1: '<strong>Nom / Pseudo :</strong> <span class="placeholder">[À COMPLÉTER]</span><br><strong>Email :</strong> <span class="placeholder">[À COMPLÉTER]</span><br><strong>Statut :</strong> Particulier / Auto-entrepreneur',
+                h2: '2. Hébergement',
+                p2: '<strong>Hébergeur :</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>Adresse :</strong> <span class="placeholder">[Adresse de l\'hébergeur]</span>',
+                h3: '3. Conditions d\'utilisation',
+                highlight1: 'Card Creator est un outil gratuit de création de cartes à collectionner personnalisées.',
+                ul1: ['Le service est fourni "tel quel", sans garantie de disponibilité permanente.', 'L\'utilisateur est seul responsable du contenu qu\'il crée (images, textes).', 'Il est interdit de créer du contenu illégal, diffamatoire ou portant atteinte aux droits d\'autrui.', 'Les créations de l\'utilisateur lui appartiennent intégralement.'],
+                h4: '4. Propriété intellectuelle',
+                p4a: 'L\'interface et le code de Card Creator sont la propriété de l\'éditeur. L\'utilisateur conserve tous les droits sur les cartes qu\'il crée avec cet outil.',
+                p4b: '<strong>Note importante :</strong> L\'utilisateur est responsable de s\'assurer qu\'il détient les droits sur les images qu\'il importe. Card Creator ne revendique aucun droit sur les créations des utilisateurs.',
+                h5: '5. Données personnelles & RGPD',
+                highlight2: '<strong>Nous ne collectons aucune donnée personnelle.</strong>',
+                ul2: ['Aucun compte utilisateur n\'est requis.', 'Aucun cookie n\'est déposé par notre site.', 'Toutes les données (cartes créées) sont stockées localement sur votre appareil (IndexedDB).', 'Aucune information n\'est transmise à nos serveurs.'],
+                p5: '<strong>Services tiers :</strong> Ce site utilise Google Fonts pour l\'affichage des polices. Google peut collecter votre adresse IP lors du chargement des polices. Pour plus d\'informations : <a href="https://policies.google.com/privacy" target="_blank">Politique de confidentialité Google</a>.',
+                h6: '6. Limitation de responsabilité',
+                ul3: ['L\'éditeur ne peut être tenu responsable des dommages directs ou indirects liés à l\'utilisation du site.', 'L\'éditeur ne garantit pas la sauvegarde des données stockées localement.', 'L\'utilisateur est encouragé à exporter ses créations régulièrement.'],
+                h7: '7. Modifications',
+                p7: 'L\'éditeur se réserve le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés des changements majeurs.',
+                h8: '8. Contact',
+                p8: 'Pour toute question concernant ces conditions, contactez : <span class="placeholder">[Votre email]</span>',
+                footer: '© 2024 Card Creator - Tous droits réservés'
+            },
+            es: {
+                backLink: '← Volver a Card Creator',
+                pageTitle: '📋 Aviso Legal y Términos',
+                lastUpdate: 'Última actualización: Diciembre 2025',
+                h1: '1. Editor',
+                p1: '<strong>Nombre / Alias:</strong> <span class="placeholder">[A COMPLETAR]</span><br><strong>Email:</strong> <span class="placeholder">[A COMPLETAR]</span><br><strong>Estado:</strong> Particular / Autónomo',
+                h2: '2. Alojamiento',
+                p2: '<strong>Alojamiento:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>Dirección:</strong> <span class="placeholder">[Dirección del alojamiento]</span>',
+                h3: '3. Términos de Uso',
+                highlight1: 'Card Creator es una herramienta gratuita para crear cartas coleccionables personalizadas.',
+                ul1: ['El servicio se proporciona "tal cual", sin garantía de disponibilidad permanente.', 'El usuario es el único responsable del contenido que crea (imágenes, textos).', 'Está prohibido crear contenido ilegal, difamatorio o que infrinja los derechos de otros.', 'Las creaciones del usuario le pertenecen íntegramente.'],
+                h4: '4. Propiedad Intelectual',
+                p4a: 'La interfaz y el código de Card Creator son propiedad del editor. El usuario conserva todos los derechos sobre las cartas que crea con esta herramienta.',
+                p4b: '<strong>Nota importante:</strong> El usuario es responsable de asegurarse de que posee los derechos sobre las imágenes que importa. Card Creator no reclama ningún derecho sobre las creaciones de los usuarios.',
+                h5: '5. Datos Personales y RGPD',
+                highlight2: '<strong>No recopilamos ningún dato personal.</strong>',
+                ul2: ['No se requiere cuenta de usuario.', 'Nuestro sitio no coloca cookies.', 'Todos los datos (cartas creadas) se almacenan localmente en su dispositivo (IndexedDB).', 'No se transmite información a nuestros servidores.'],
+                p5: '<strong>Servicios de terceros:</strong> Este sitio utiliza Google Fonts para mostrar fuentes. Google puede recopilar su dirección IP al cargar fuentes. Para más información: <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad de Google</a>.',
+                h6: '6. Limitación de Responsabilidad',
+                ul3: ['El editor no será responsable de los daños directos o indirectos relacionados con el uso del sitio.', 'El editor no garantiza la copia de seguridad de los datos almacenados localmente.', 'Se anima a los usuarios a exportar sus creaciones regularmente.'],
+                h7: '7. Modificaciones',
+                p7: 'El editor se reserva el derecho de modificar estos términos en cualquier momento. Los usuarios serán informados de cambios importantes.',
+                h8: '8. Contacto',
+                p8: 'Para cualquier pregunta sobre estos términos, contacte: <span class="placeholder">[Su email]</span>',
+                footer: '© 2024 Card Creator - Todos los derechos reservados'
+            },
+            de: {
+                backLink: '← Zurück zu Card Creator',
+                pageTitle: '📋 Impressum & AGB',
+                lastUpdate: 'Letzte Aktualisierung: Dezember 2025',
+                h1: '1. Herausgeber',
+                p1: '<strong>Name / Alias:</strong> <span class="placeholder">[ZU ERGÄNZEN]</span><br><strong>E-Mail:</strong> <span class="placeholder">[ZU ERGÄNZEN]</span><br><strong>Status:</strong> Privatperson / Selbstständig',
+                h2: '2. Hosting',
+                p2: '<strong>Hosting:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>Adresse:</strong> <span class="placeholder">[Hosting-Adresse]</span>',
+                h3: '3. Nutzungsbedingungen',
+                highlight1: 'Card Creator ist ein kostenloses Tool zum Erstellen personalisierter Sammelkarten.',
+                ul1: ['Der Dienst wird "wie er ist" bereitgestellt, ohne Garantie für dauerhafte Verfügbarkeit.', 'Der Benutzer ist allein verantwortlich für die von ihm erstellten Inhalte (Bilder, Texte).', 'Es ist verboten, illegale, verleumderische oder rechtsverletzende Inhalte zu erstellen.', 'Die Kreationen des Benutzers gehören vollständig dem Benutzer.'],
+                h4: '4. Geistiges Eigentum',
+                p4a: 'Die Benutzeroberfläche und der Code von Card Creator sind Eigentum des Herausgebers. Der Benutzer behält alle Rechte an den Karten, die er mit diesem Tool erstellt.',
+                p4b: '<strong>Wichtiger Hinweis:</strong> Der Benutzer ist dafür verantwortlich, dass er die Rechte an den importierten Bildern besitzt. Card Creator erhebt keine Ansprüche auf Benutzerkreationen.',
+                h5: '5. Personenbezogene Daten & DSGVO',
+                highlight2: '<strong>Wir erheben keine personenbezogenen Daten.</strong>',
+                ul2: ['Kein Benutzerkonto erforderlich.', 'Unsere Website setzt keine Cookies.', 'Alle Daten (erstellte Karten) werden lokal auf Ihrem Gerät gespeichert (IndexedDB).', 'Es werden keine Informationen an unsere Server übertragen.'],
+                p5: '<strong>Drittanbieter-Dienste:</strong> Diese Website verwendet Google Fonts zur Anzeige von Schriftarten. Google kann Ihre IP-Adresse beim Laden von Schriftarten erfassen. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank">Google-Datenschutzrichtlinie</a>.',
+                h6: '6. Haftungsbeschränkung',
+                ul3: ['Der Herausgeber haftet nicht für direkte oder indirekte Schäden im Zusammenhang mit der Nutzung der Website.', 'Der Herausgeber garantiert nicht die Sicherung lokal gespeicherter Daten.', 'Benutzer werden ermutigt, ihre Kreationen regelmäßig zu exportieren.'],
+                h7: '7. Änderungen',
+                p7: 'Der Herausgeber behält sich das Recht vor, diese Bedingungen jederzeit zu ändern. Benutzer werden über wesentliche Änderungen informiert.',
+                h8: '8. Kontakt',
+                p8: 'Bei Fragen zu diesen Bedingungen kontaktieren Sie: <span class="placeholder">[Ihre E-Mail]</span>',
+                footer: '© 2024 Card Creator - Alle Rechte vorbehalten'
+            },
+            ru: {
+                backLink: '← Вернуться к Card Creator',
+                pageTitle: '📋 Правовая информация',
+                lastUpdate: 'Последнее обновление: Декабрь 2025',
+                h1: '1. Издатель',
+                p1: '<strong>Имя / Псевдоним:</strong> <span class="placeholder">[ЗАПОЛНИТЬ]</span><br><strong>Email:</strong> <span class="placeholder">[ЗАПОЛНИТЬ]</span><br><strong>Статус:</strong> Физическое лицо / Самозанятый',
+                h2: '2. Хостинг',
+                p2: '<strong>Хостинг:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>Адрес:</strong> <span class="placeholder">[Адрес хостинга]</span>',
+                h3: '3. Условия использования',
+                highlight1: 'Card Creator — бесплатный инструмент для создания персонализированных коллекционных карт.',
+                ul1: ['Сервис предоставляется «как есть», без гарантии постоянной доступности.', 'Пользователь несёт полную ответственность за создаваемый контент (изображения, тексты).', 'Запрещено создавать незаконный, клеветнический контент или контент, нарушающий права других.', 'Творения пользователя полностью принадлежат пользователю.'],
+                h4: '4. Интеллектуальная собственность',
+                p4a: 'Интерфейс и код Card Creator являются собственностью издателя. Пользователь сохраняет все права на карты, созданные с помощью этого инструмента.',
+                p4b: '<strong>Важное примечание:</strong> Пользователь несёт ответственность за наличие прав на импортируемые изображения. Card Creator не претендует на права на творения пользователей.',
+                h5: '5. Персональные данные и GDPR',
+                highlight2: '<strong>Мы не собираем никаких персональных данных.</strong>',
+                ul2: ['Учётная запись не требуется.', 'Наш сайт не использует cookies.', 'Все данные (созданные карты) хранятся локально на вашем устройстве (IndexedDB).', 'Никакая информация не передаётся на наши серверы.'],
+                p5: '<strong>Сторонние сервисы:</strong> Этот сайт использует Google Fonts для отображения шрифтов. Google может собирать ваш IP-адрес при загрузке шрифтов. Подробнее: <a href="https://policies.google.com/privacy" target="_blank">Политика конфиденциальности Google</a>.',
+                h6: '6. Ограничение ответственности',
+                ul3: ['Издатель не несёт ответственности за прямой или косвенный ущерб, связанный с использованием сайта.', 'Издатель не гарантирует сохранность локально хранимых данных.', 'Пользователям рекомендуется регулярно экспортировать свои творения.'],
+                h7: '7. Изменения',
+                p7: 'Издатель оставляет за собой право изменять эти условия в любое время. Пользователи будут уведомлены о существенных изменениях.',
+                h8: '8. Контакт',
+                p8: 'По вопросам, касающимся этих условий, обращайтесь: <span class="placeholder">[Ваш email]</span>',
+                footer: '© 2024 Card Creator - Все права защищены'
+            },
+            ja: {
+                backLink: '← Card Creatorに戻る',
+                pageTitle: '📋 利用規約',
+                lastUpdate: '最終更新日：2025年12月',
+                h1: '1. 発行者',
+                p1: '<strong>名前 / ニックネーム:</strong> <span class="placeholder">[要入力]</span><br><strong>メール:</strong> <span class="placeholder">[要入力]</span><br><strong>ステータス:</strong> 個人',
+                h2: '2. ホスティング',
+                p2: '<strong>ホスティング:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>住所:</strong> <span class="placeholder">[ホスティング先住所]</span>',
+                h3: '3. 利用条件',
+                highlight1: 'Card Creatorは、カスタムコレクションカードを作成するための無料ツールです。',
+                ul1: ['サービスは「現状のまま」提供され、常時利用可能であることを保証しません。', 'ユーザーは、作成したコンテンツ（画像、テキスト）に対して単独で責任を負います。', '違法、名誉毀損、または他者の権利を侵害するコンテンツの作成は禁止されています。', 'ユーザーの作品はすべてユーザーに帰属します。'],
+                h4: '4. 知的財産権',
+                p4a: 'Card Creatorのインターフェースとコードは発行者の所有物です。ユーザーは、このツールで作成したカードのすべての権利を保持します。',
+                p4b: '<strong>重要な注意:</strong> ユーザーは、インポートする画像の権利を持っていることを確認する責任があります。Card Creatorはユーザーの作品に対していかなる権利も主張しません。',
+                h5: '5. 個人データとGDPR',
+                highlight2: '<strong>個人データは一切収集しません。</strong>',
+                ul2: ['ユーザーアカウントは不要です。', '当サイトはCookieを使用しません。', 'すべてのデータ（作成したカード）はお使いのデバイスにローカル保存されます（IndexedDB）。', '当社のサーバーに情報は送信されません。'],
+                p5: '<strong>サードパーティサービス:</strong> このサイトはフォント表示にGoogle Fontsを使用しています。フォント読み込み時にGoogleがIPアドレスを収集する場合があります。詳細: <a href="https://policies.google.com/privacy" target="_blank">Googleプライバシーポリシー</a>。',
+                h6: '6. 責任の制限',
+                ul3: ['発行者は、サイトの使用に関連する直接的または間接的な損害について責任を負いません。', '発行者は、ローカルに保存されたデータのバックアップを保証しません。', 'ユーザーは定期的に作品をエクスポートすることをお勧めします。'],
+                h7: '7. 変更',
+                p7: '発行者はいつでもこれらの条件を変更する権利を留保します。重要な変更についてはユーザーに通知されます。',
+                h8: '8. お問い合わせ',
+                p8: 'これらの条件に関するご質問は、こちらまで: <span class="placeholder">[あなたのメール]</span>',
+                footer: '© 2024 Card Creator - All rights reserved'
+            },
+            zh: {
+                backLink: '← 返回 Card Creator',
+                pageTitle: '📋 法律声明和条款',
+                lastUpdate: '最后更新：2025年12月',
+                h1: '1. 发布者',
+                p1: '<strong>姓名 / 昵称:</strong> <span class="placeholder">[待填写]</span><br><strong>邮箱:</strong> <span class="placeholder">[待填写]</span><br><strong>身份:</strong> 个人',
+                h2: '2. 托管',
+                p2: '<strong>托管商:</strong> <span class="placeholder">[GitHub Pages / Netlify / Vercel]</span><br><strong>地址:</strong> <span class="placeholder">[托管商地址]</span>',
+                h3: '3. 使用条款',
+                highlight1: 'Card Creator 是一款免费的定制收藏卡制作工具。',
+                ul1: ['服务按"现状"提供，不保证永久可用。', '用户对其创建的内容（图片、文字）承担全部责任。', '禁止创建非法、诽谤性或侵犯他人权利的内容。', '用户的创作完全归用户所有。'],
+                h4: '4. 知识产权',
+                p4a: 'Card Creator 的界面和代码归发布者所有。用户保留使用此工具创建的卡片的所有权利。',
+                p4b: '<strong>重要提示:</strong> 用户有责任确保自己拥有所导入图片的权利。Card Creator 不对用户创作主张任何权利。',
+                h5: '5. 个人数据与GDPR',
+                highlight2: '<strong>我们不收集任何个人数据。</strong>',
+                ul2: ['无需用户账户。', '本站不使用Cookie。', '所有数据（创建的卡片）都存储在您的设备本地（IndexedDB）。', '没有信息传输到我们的服务器。'],
+                p5: '<strong>第三方服务:</strong> 本站使用 Google Fonts 显示字体。加载字体时 Google 可能会收集您的IP地址。更多信息: <a href="https://policies.google.com/privacy" target="_blank">Google 隐私政策</a>。',
+                h6: '6. 责任限制',
+                ul3: ['发布者不对与使用本站相关的直接或间接损害负责。', '发布者不保证本地存储数据的备份。', '建议用户定期导出其创作。'],
+                h7: '7. 修改',
+                p7: '发布者保留随时修改这些条款的权利。重大变更将通知用户。',
+                h8: '8. 联系方式',
+                p8: '如有关于这些条款的问题，请联系: <span class="placeholder">[您的邮箱]</span>',
+                footer: '© 2024 Card Creator - 保留所有权利'
+            }
+        };
+
+        // Initialize
+        const langSelect = document.getElementById('langSelect');
+
+        // Populate language selector
+        Object.entries(LANGUAGES).forEach(([code, { name, flag }]) => {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = `${flag} ${name}`;
+            langSelect.appendChild(option);
+        });
+
+        // Get saved language or detect from browser
+        const savedLang = localStorage.getItem('cardCreatorLang');
+        const browserLang = navigator.language.split('-')[0];
+        const defaultLang = savedLang || (TRANSLATIONS[browserLang] ? browserLang : 'en');
+        langSelect.value = defaultLang;
+
+        function updateContent(lang) {
+            const t = TRANSLATIONS[lang];
+            if (!t) return;
+
+            document.documentElement.lang = lang;
+            document.getElementById('backLink').textContent = t.backLink;
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('lastUpdate').textContent = t.lastUpdate;
+
+            document.getElementById('h1').textContent = t.h1;
+            document.getElementById('p1').innerHTML = t.p1;
+            document.getElementById('h2').textContent = t.h2;
+            document.getElementById('p2').innerHTML = t.p2;
+            document.getElementById('h3').textContent = t.h3;
+            document.getElementById('highlight1').textContent = t.highlight1;
+            document.getElementById('ul1').innerHTML = t.ul1.map(li => `<li>${li}</li>`).join('');
+            document.getElementById('h4').textContent = t.h4;
+            document.getElementById('p4a').textContent = t.p4a;
+            document.getElementById('p4b').innerHTML = t.p4b;
+            document.getElementById('h5').textContent = t.h5;
+            document.getElementById('highlight2').innerHTML = t.highlight2;
+            document.getElementById('ul2').innerHTML = t.ul2.map(li => `<li>${li}</li>`).join('');
+            document.getElementById('p5').innerHTML = t.p5;
+            document.getElementById('h6').textContent = t.h6;
+            document.getElementById('ul3').innerHTML = t.ul3.map(li => `<li>${li}</li>`).join('');
+            document.getElementById('h7').textContent = t.h7;
+            document.getElementById('p7').textContent = t.p7;
+            document.getElementById('h8').textContent = t.h8;
+            document.getElementById('p8').innerHTML = t.p8;
+            // Update footer with current year
+            const currentYear = new Date().getFullYear();
+            document.getElementById('footer').textContent = t.footer.replace('2024', currentYear);
+
+            // Update page title
+            document.title = t.pageTitle.replace('📋 ', '') + ' - Card Creator';
+
+            // Save preference
+            localStorage.setItem('cardCreatorLang', lang);
+        }
+
+        langSelect.addEventListener('change', (e) => updateContent(e.target.value));
+        updateContent(defaultLang);
+    </script>
+</body>
+
+</html>
