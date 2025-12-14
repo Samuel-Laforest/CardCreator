@@ -12,9 +12,12 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Html2Canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <!-- Emoji Picker -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+  <script src="data.js"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,326 +95,6 @@
   <script type="text/babel">
 
     const { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } = React;
-    const LANGUAGES = {
-      en: { name: 'English', flag: '🇬🇧' }, fr: { name: 'Français', flag: '🇫🇷' }, es: { name: 'Español', flag: '🇪🇸' }, de: { name: 'Deutsch', flag: '🇩🇪' }, ru: { name: 'Русский', flag: '🇷🇺' }, ja: { name: '日本語', flag: '🇯🇵' }, zh: { name: '中文', flag: '🇨🇳' },
-    };
-    const TRANSLATIONS = {
-      en: {
-        gifModal: {
-          title: "📹 High Quality GIF Capture",
-          body: "To get a perfect result, we need to capture the screen:",
-          step1: "Select the <strong>\"Tab\"</strong> option.",
-          step2: "Choose <strong>this page</strong> from the list.",
-          step3: "Click <strong>\"Share\"</strong>.",
-          note: "The mouse will be automatically hidden and the card cropped.",
-          warning: "Using maximum settings (60 FPS / 4K) may take longer and use high CPU.",
-          fpsLabel: "FPS",
-          qualityLabel: "Quality (Height)",
-          fpsNormal: "15 FPS (Normal)",
-          fpsCinema: "24 FPS (Cinema)",
-          fpsSmooth: "30 FPS (Smooth)",
-          fpsUltra: "60 FPS (Ultra)",
-          qualitySD: "480p (SD)",
-          qualityNormal: "720p (HD)",
-          qualityHigh: "1080p (Full HD)",
-          qualityQHD: "1440p (QHD)",
-          qualityUltra: "4K (UHD)",
-          cancel: "Cancel",
-          start: "Start Capture", loadingLibs: "⏳ Loading libs...", capturing: "📸 Capturing...", encoding: "⚙️ Encoding..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'Create your own personalized collectible cards',
-        hoverHint: '✨ Hover over the card to intensify the effect ✨',
-        elements: { Fire: 'Fire', Water: 'Water', Nature: 'Nature', Electric: 'Electric', Mystic: 'Mystic', Fighting: 'Fighting', Shadow: 'Shadow', Metal: 'Metal', Light: 'Light', Dragon: 'Dragon', Ice: 'Ice', Neutral: 'Neutral' },
-        effects: { none: { name: 'None', description: 'No effect' }, holographic: { name: 'Holographic', description: 'Classic rainbow effect' }, rainbow: { name: 'Rainbow', description: 'Animated multicolor gradient' }, gold: { name: 'Gold', description: 'Luxurious golden reflections' }, silver: { name: 'Silver', description: 'Metallic silver reflections' }, prismatic: { name: 'Prismatic', description: 'Refracting crystal effect' }, neon: { name: 'Neon', description: 'Vibrant neon glow' }, galaxy: { name: 'Galaxy', description: 'Starry cosmic effect' }, fire: { name: 'Flames', description: 'Animated flame effect' }, ice: { name: 'Frost', description: 'Sparkling ice effect' } },
-        stages: ['Base', 'Stage 1', 'Stage 2', 'Special', 'Legendary', 'Mythic', 'Ultra'],
-        rarities: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', mythic: 'Mythic' },
-        sections: { image: 'Image', basicInfo: 'Basic Information', rarityEffects: 'Effects', abilities: 'Abilities', stats: 'Statistics', appearance: 'Appearance', cardStyle: 'Card Style', textStyle: 'Text Style', particles: 'Particles', abilityStyle: 'Ability Style', reset: 'Reset' },
-        labels: { name: 'Name', hp: 'Hit Points', element: 'Element', stage: 'Stage', description: 'Description', author: 'Author', rarity: 'Rarity', effect: 'Effect', weakness: 'Weakness', resistance: 'Resistance', retreatCost: 'Retreat Cost', abilityName: 'Ability Name', damage: 'Damage', energyCost: 'Energy Cost', abilityDesc: 'Abilities Description', borderColor: 'Border Color', backgroundColor: 'Card Background', abilityBackground: 'Ability Background', textColor: 'Text Color', font: 'Font', size: 'Size', weight: 'Weight', zoom: 'Zoom', presets: 'Presets', backgroundStyle: 'Background Style', solid: 'Solid', gradient: 'Gradient', cardInner: 'Card Inner', primaryColor: 'Primary Color', secondaryColor: 'Secondary Color', nameColor: 'Name Color', hpColor: 'HP Color', typeColor: 'Type Color', descColor: 'Description Color', statsColor: 'Stats Color', authorColor: 'Author Color', particleEmoji: 'Particle Emoji', animation: 'Animation' },
-        buttons: { addAbility: '+ Add Ability', remove: 'Remove', change: 'Change', recenter: 'Recenter', download: 'Download', autoRotate: '3D View', resetCard: '🔄 Reset Card', save: 'Save', load: 'Load', deleteAll: 'Delete All' },
-        checkboxes: { showHP: 'Show hit points', showWeakRes: 'Show weakness/resistance', showRetreat: 'Show retreat cost', showDescription: 'Show description', showTexture: 'Show texture pattern', showParticles: 'Show particles', showDamage: 'Show damage' },
-        imageEditor: { dropHint: 'Drag & drop an image here', orClick: 'or click to select', formats: 'PNG,JPG,GIF,WEBP (max 15MB)', loading: 'Loading...', unsupportedFormat: 'Unsupported format. Use PNG,JPG,GIF or WEBP.', fileTooLarge: 'File too large. Maximum 15MB.', searchPlaceholder: 'Type...' },
-        download: { title: '📥 Download', pngTitle: 'Transparent PNG image', jpgTitle: 'JPG image with background', gifTitle: 'Animated GIF (3 seconds)', webpTitle: 'WebP Image', htmlTitle: 'Interactive HTML file', capturing: '⏳ Capturing...', encoding: '⚙️ Encoding...' },
-        card: { hp: 'HP', weakness: 'Weakness', resistance: 'Resistance', cost: 'Cost', illus: 'Illus.' },
-        defaults: { newAbility: 'New Ability', cardName: 'My Creature', description: 'A mysterious creature with incredible powers.', author: 'Creator', attackName1: 'Fireball', attackDesc1: 'Flip a coin. If heads, the Defending Pokémon is now Burned.', attackName2: 'Flamethrower', attackDesc2: 'Discard an Energy attached to this Pokémon.' }, notifications: { success: 'Success', error: 'Error', info: 'Information', warning: 'Warning' },
-        display: { title: 'Display Options' },
-        tabs: { info: 'Info', content: 'Content', visual: 'Visual', style: 'Style', colors: 'Colors' },
-        common: { cancel: 'Cancel', close: 'Close' },
-        prompts: { resetConfirm: 'Reset all card data?', saveHint: 'Your card (text + image) will be saved locally.', saveSuccess: 'Card saved successfully!', loadConfirm: 'Load this card? Unsaved changes will be lost.', deleteConfirm: 'Delete this saved card?', deleteAllConfirm: 'Delete all saved cards? This cannot be undone.', allDeleted: 'All cards deleted', noSaves: 'No saved cards found.', quotaError: 'Storage full! Try deleting old cards.', saveError: 'Error saving card.', autoDeleteInfo: 'Saved cards are automatically deleted after 30 days.' },
-        textures: { none: 'None', grid: 'Grid', scales: 'Scales', cross: 'Cross', stars: 'Stars', hexagons: 'Hexagons', lines: 'Lines', dots: 'Dots', waves: 'Waves', circuit: 'Circuit' },
-        animations: { fire: 'Rising', water: 'Bubbles', nature: 'Floating', electric: 'Sparks', mystic: 'Magic', fighting: 'Impact', shadow: 'Fade', metal: 'Gears', light: 'Radiate', dragon: 'Majestic', ice: 'Snow', neutral: 'Subtle' }
-      },
-      fr: {
-        gifModal: {
-          title: "📹 Capture GIF Haute Qualité",
-          body: "Pour obtenir un résultat parfait, nous devons capturer l'écran :",
-          step1: "Sélectionnez l'option <strong>\"Onglet\"</strong>.",
-          step2: "Choisissez <strong>cette page</strong> dans la liste.",
-          step3: "Cliquez sur <strong>\"Partager\"</strong>.",
-          note: "La souris sera automatiquement masquée et la carte recadrée.",
-          warning: "L'utilisation des paramètres maximum (60 IPS / 4K) peut prendre plus de temps et utiliser beaucoup de CPU.",
-          fpsLabel: "IPS",
-          qualityLabel: "Qualité (Hauteur)",
-          fpsNormal: "15 IPS (Normal)",
-          fpsCinema: "24 IPS (Cinéma)",
-          fpsSmooth: "30 IPS (Fluide)",
-          fpsUltra: "60 IPS (Ultra)",
-          qualitySD: "480p (SD)",
-          qualityNormal: "720p (HD)",
-          qualityHigh: "1080p (Full HD)",
-          qualityQHD: "1440p (QHD)",
-          qualityUltra: "4K (UHD)",
-          cancel: "Annuler",
-          start: "Lancer la capture", loadingLibs: "⏳ Chargement...", capturing: "📸 Capture...", encoding: "⚙️ Encodage..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'Créez vos propres cartes à collectionner personnalisées',
-        hoverHint: '✨ Survolez la carte pour intensifier l\'effet ✨',
-        elements: { Fire: 'Feu', Water: 'Eau', Nature: 'Nature', Electric: 'Électrique', Mystic: 'Mystique', Fighting: 'Combat', Shadow: 'Ombre', Metal: 'Métal', Light: 'Lumière', Dragon: 'Dragon', Ice: 'Glace', Neutral: 'Neutre' },
-        effects: { none: { name: 'Aucun', description: 'Pas d\'effet' }, holographic: { name: 'Holographique', description: 'Effet arc-en-ciel classique' }, rainbow: { name: 'Arc-en-ciel', description: 'Dégradé multicolore animé' }, gold: { name: 'Doré', description: 'Reflets dorés luxueux' }, silver: { name: 'Argenté', description: 'Reflets argentés métalliques' }, prismatic: { name: 'Prismatique', description: 'Effet cristal réfractant' }, neon: { name: 'Néon', description: 'Lueur néon vibrante' }, galaxy: { name: 'Galaxie', description: 'Effet cosmique étoilé' }, fire: { name: 'Flammes', description: 'Effet de flammes animées' }, ice: { name: 'Givré', description: 'Effet de glace scintillante' } },
-        stages: ['Base', 'Évolution 1', 'Évolution 2', 'Spécial', 'Légendaire', 'Mythique', 'Ultra'],
-        rarities: { common: 'Commune', uncommon: 'Peu commune', rare: 'Rare', epic: 'Épique', legendary: 'Légendaire', mythic: 'Mythique' },
-        sections: { image: 'Image', basicInfo: 'Informations de base', rarityEffects: 'Effets', abilities: 'Capacités', stats: 'Statistiques', appearance: 'Apparence', cardStyle: 'Style de carte', textStyle: 'Style du texte', particles: 'Particules', abilityStyle: 'Style des capacités', reset: 'Réinitialiser' },
-        labels: { name: 'Nom', hp: 'Points de vie', element: 'Élément', stage: 'Stade', description: 'Description', author: 'Auteur', rarity: 'Rareté', effect: 'Effet', weakness: 'Faiblesse', resistance: 'Résistance', retreatCost: 'Coût de retraite', abilityName: 'Nom de la capacité', damage: 'Dégâts', energyCost: 'Coût en énergie', abilityDesc: 'Description des capacités', borderColor: 'Couleur de bordure', backgroundColor: 'Fond de carte', abilityBackground: 'Fond des capacités', textColor: 'Couleur du texte', font: 'Police', size: 'Taille', weight: 'Graisse', zoom: 'Zoom', presets: 'Préréglages', backgroundStyle: 'Style de fond', solid: 'Uni', gradient: 'Dégradé', cardInner: 'Intérieur de la carte', primaryColor: 'Couleur principale', secondaryColor: 'Couleur secondaire', nameColor: 'Couleur du nom', hpColor: 'Couleur des PV', typeColor: 'Couleur du type', descColor: 'Couleur de description', statsColor: 'Couleur des stats', authorColor: 'Couleur de l\'auteur', particleEmoji: 'Emoji de particule', animation: 'Animation' },
-        buttons: { addAbility: '+ Ajouter', remove: 'Supprimer', change: 'Changer', recenter: 'Recentrer', download: 'Télécharger', autoRotate: 'Aperçu 3D', resetCard: '🔄 Réinitialiser', save: 'Sauvegarder', load: 'Charger', deleteAll: 'Tout supprimer' },
-        checkboxes: { showHP: 'Afficher les points de vie', showWeakRes: 'Afficher faiblesse/résistance', showRetreat: 'Afficher le coût de retraite', showDescription: 'Afficher la description', showTexture: 'Afficher le motif', showParticles: 'Afficher les particules', showDamage: 'Afficher les dégâts' },
-        imageEditor: { dropHint: 'Glissez-déposez une image ici', orClick: 'ou cliquez pour sélectionner', formats: 'PNG,JPG,GIF,WEBP (max 15Mo)', loading: 'Chargement...', unsupportedFormat: 'Format non supporté. Utilisez PNG,JPG,GIF ou WEBP.', fileTooLarge: 'Fichier trop volumineux. Maximum 15Mo.', searchPlaceholder: 'Tapez...' },
-        download: { title: '📥 Télécharger', pngTitle: 'Image PNG transparente', jpgTitle: 'Image JPG avec fond', gifTitle: 'GIF animé (3 secondes)', webpTitle: 'Image WebP', htmlTitle: 'Fichier HTML interactif', capturing: '⏳ Capture...', encoding: '⚙️ Encodage...' },
-        card: { hp: 'PV', weakness: 'Faiblesse', resistance: 'Résistance', cost: 'Coût', illus: 'Illus.' },
-        defaults: { newAbility: 'Nouvelle Capacité', cardName: 'Ma Créature', description: 'Une créature mystérieuse aux pouvoirs incroyables.', author: 'Créateur', attackName1: 'Boule de Feu', attackDesc1: 'Lancez une pièce. Si c\'est face, le Pokémon Défenseur est maintenant Brûlé.', attackName2: 'Lance-Flammes', attackDesc2: 'Défaussez une Énergie attachée à ce Pokémon.' }, notifications: { success: 'Succès', error: 'Erreur', info: 'Information', warning: 'Attention' },
-        display: { title: 'Options d\'affichage' },
-        tabs: { info: 'Infos', content: 'Contenu', visual: 'Visuel', style: 'Style', colors: 'Couleurs' },
-        common: { cancel: 'Annuler', close: 'Fermer' },
-        prompts: { resetConfirm: 'Réinitialiser toutes les données de la carte ?', saveHint: 'Votre carte (texte + image) sera sauvegardée localement.', saveSuccess: 'Carte sauvegardée avec succès !', loadConfirm: 'Charger cette carte ? Les modifications non sauvegardées seront perdues.', deleteConfirm: 'Supprimer cette carte ?', deleteAllConfirm: 'Supprimer toutes les cartes ? Cette action est irréversible.', allDeleted: 'Toutes les cartes supprimées', noSaves: 'Aucune carte sauvegardée.', quotaError: 'Espace insuffisant ! Supprimez des anciennes cartes.', saveError: 'Erreur lors de la sauvegarde.', autoDeleteInfo: 'Les cartes sont supprimées après 30 jours.' },
-        textures: { none: 'Aucun', grid: 'Grille', scales: 'Écailles', cross: 'Croix', stars: 'Étoiles', hexagons: 'Hexagones', lines: 'Lignes', dots: 'Points', waves: 'Vagues', circuit: 'Circuit' },
-        animations: { fire: 'Montant', water: 'Bulles', nature: 'Flottant', electric: 'Étincelles', mystic: 'Magie', fighting: 'Impact', shadow: 'Fondu', metal: 'Engrenages', light: 'Rayonnement', dragon: 'Majestueux', ice: 'Neige', neutral: 'Subtil' }
-      },
-      es: {
-        gifModal: {
-          title: "📹 Captura GIF de Alta Calidad",
-          body: "Para obtener un resultado perfecto, necesitamos capturar la pantalla:",
-          step1: "Selecciona la opción <strong>\"Pestaña\"</strong>.",
-          step2: "Elige <strong>esta página</strong> de la lista.",
-          step3: "Haz clic en <strong>\"Compartir\"</strong>.",
-          note: "El ratón se ocultará automáticamente y la carta se recortará.",
-          warning: "El uso de la configuración máxima (60 FPS / 4K) puede tardar más y consumir mucha CPU.",
-          fpsLabel: "FPS",
-          qualityLabel: "Calidad (Altura)",
-          fpsNormal: "15 FPS (Normal)",
-          fpsCinema: "24 FPS (Cine)",
-          fpsSmooth: "30 FPS (Fluido)",
-          fpsUltra: "60 FPS (Ultra)",
-          qualitySD: "480p (SD)",
-          qualityNormal: "720p (HD)",
-          qualityHigh: "1080p (Full HD)",
-          qualityQHD: "1440p (QHD)",
-          qualityUltra: "4K (UHD)",
-          cancel: "Cancelar",
-          start: "Iniciar Captura", loadingLibs: "⏳ Cargando...", capturing: "📸 Capturando...", encoding: "⚙️ Codificando..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'Crea tus propias cartas coleccionables personalizadas',
-        hoverHint: '✨ Pasa el cursor sobre la carta para intensificar el efecto ✨',
-        elements: { Fire: 'Fuego', Water: 'Agua', Nature: 'Naturaleza', Electric: 'Eléctrico', Mystic: 'Místico', Fighting: 'Lucha', Shadow: 'Sombra', Metal: 'Metal', Light: 'Luz', Dragon: 'Dragón', Ice: 'Hielo', Neutral: 'Neutral' },
-        effects: { none: { name: 'Ninguno', description: 'Sin efecto' }, holographic: { name: 'Holográfico', description: 'Efecto arcoíris clásico' }, rainbow: { name: 'Arcoíris', description: 'Degradado multicolor animado' }, gold: { name: 'Dorado', description: 'Reflejos dorados lujosos' }, silver: { name: 'Plateado', description: 'Reflejos metálicos plateados' }, prismatic: { name: 'Prismático', description: 'Efecto cristal refractante' }, neon: { name: 'Neón', description: 'Brillo neón vibrante' }, galaxy: { name: 'Galaxia', description: 'Efecto cósmico estrellado' }, fire: { name: 'Llamas', description: 'Efecto de llamas animadas' }, ice: { name: 'Escarcha', description: 'Efecto de hielo brillante' } },
-        stages: ['Base', 'Fase 1', 'Fase 2', 'Especial', 'Legendario', 'Mítico', 'Ultra'],
-        rarities: { common: 'Común', uncommon: 'Poco común', rare: 'Rara', epic: 'Épica', legendary: 'Legendaria', mythic: 'Mítica' },
-        sections: { image: 'Imagen', basicInfo: 'Información básica', rarityEffects: 'Efectos', abilities: 'Habilidades', stats: 'Estadísticas', appearance: 'Apariencia', cardStyle: 'Estilo de carta', textStyle: 'Estilo de texto', particles: 'Partículas', abilityStyle: 'Estilo de habilidad', reset: 'Reiniciar' },
-        labels: { name: 'Nombre', hp: 'Puntos de vida', element: 'Elemento', stage: 'Fase', description: 'Descripción', author: 'Autor', rarity: 'Rareza', effect: 'Efecto', weakness: 'Debilidad', resistance: 'Resistencia', retreatCost: 'Coste de retirada', abilityName: 'Nombre de habilidad', damage: 'Daño', energyCost: 'Coste de energía', abilityDesc: 'Descripción de habilidades', borderColor: 'Color del borde', backgroundColor: 'Fondo de carta', abilityBackground: 'Fondo de habilidad', textColor: 'Color del texto', font: 'Fuente', size: 'Tamaño', weight: 'Peso', zoom: 'Zoom', presets: 'Preajustes', backgroundStyle: 'Estilo de fondo', solid: 'Sólido', gradient: 'Degradado', cardInner: 'Interior de la carta', primaryColor: 'Color primario', secondaryColor: 'Color secundario', nameColor: 'Color del nombre', hpColor: 'Color de PV', typeColor: 'Color del tipo', descColor: 'Color de descripción', statsColor: 'Color de estadísticas', authorColor: 'Color del autor', particleEmoji: 'Emoji de partícula', animation: 'Animación' },
-        buttons: { addAbility: '+ Añadir', remove: 'Eliminar', change: 'Cambiar', recenter: 'Recentrar', download: 'Descargar', autoRotate: 'Vista 3D', resetCard: '🔄 Reiniciar', save: 'Guardar', load: 'Cargar', deleteAll: 'Borrar todo' },
-        checkboxes: { showHP: 'Mostrar puntos de vida', showWeakRes: 'Mostrar debilidad/resistencia', showRetreat: 'Mostrar coste de retirada', showDescription: 'Mostrar descripción', showTexture: 'Mostrar patrón', showParticles: 'Mostrar partículas', showDamage: 'Mostrar daño' },
-        imageEditor: { dropHint: 'Arrastra y suelta una imagen aquí', orClick: 'o haz clic para seleccionar', formats: 'PNG,JPG,GIF,WEBP (máx 15MB)', loading: 'Cargando...', unsupportedFormat: 'Formato no soportado. Use PNG,JPG,GIF o WEBP.', fileTooLarge: 'Archivo demasiado grande. Máximo 15MB.', searchPlaceholder: 'Escriba...' },
-        download: { title: '📥 Descargar', pngTitle: 'Imagen PNG transparente', jpgTitle: 'Imagen JPG con fondo', gifTitle: 'GIF animado (3 segundos)', webpTitle: 'Imagen WebP', htmlTitle: 'Archivo HTML interactivo', capturing: '⏳ Capturando...', encoding: '⚙️ Codificando...' },
-        card: { hp: 'PS', weakness: 'Debilidad', resistance: 'Resistencia', cost: 'Coste', illus: 'Illus.' },
-        defaults: { newAbility: 'Nueva Habilidad', cardName: 'Mi Criatura', description: 'Una criatura misteriosa con poderes increíbles.', author: 'Creador', attackName1: 'Bola de Fuego', attackDesc1: 'Lanza una moneda. Si sale cara, el Pokémon Defensor pasa a estar Quemado.', attackName2: 'Lanzallamas', attackDesc2: 'Descarta una Energía unida a este Pokémon.' }, notifications: { success: 'Éxito', error: 'Error', info: 'Información', warning: 'Advertencia' },
-        display: { title: 'Opciones de visualización' },
-        tabs: { info: 'Info', content: 'Contenido', visual: 'Visual', style: 'Estilo', colors: 'Colores' },
-        common: { cancel: 'Cancelar', close: 'Cerrar' },
-        prompts: { resetConfirm: '¿Restablecer todos los datos de la carta?', saveHint: 'Tu carta (texto + imagen) se guardará localmente.', saveSuccess: '¡Carta guardada con éxito!', loadConfirm: '¿Cargar esta carta? Se perderán los cambios no guardados.', deleteConfirm: '¿Eliminar esta carta guardada?', deleteAllConfirm: '¿Eliminar todas las cartas? Esta acción no se puede deshacer.', allDeleted: 'Todas las cartas eliminadas', noSaves: 'No se encontraron cartas guardadas.', quotaError: '¡Almacenamiento lleno! Elimina cartas antiguas.', saveError: 'Error al guardar la carta.', autoDeleteInfo: 'Las cartas se borran tras 30 días.' },
-        textures: { none: 'Ninguno', grid: 'Cuadrícula', scales: 'Escamas', cross: 'Cruz', stars: 'Estrellas', hexagons: 'Hexágonos', lines: 'Líneas', dots: 'Puntos', waves: 'Olas', circuit: 'Circuito' },
-        animations: { fire: 'Ascendente', water: 'Burbujas', nature: 'Flotante', electric: 'Chispas', mystic: 'Magia', fighting: 'Impacto', shadow: 'Desvanecer', metal: 'Engranajes', light: 'Resplandor', dragon: 'Majestuoso', ice: 'Nieve', neutral: 'Sutil' }
-      },
-      de: {
-        gifModal: {
-          title: "📹 Hochwertige GIF-Aufnahme",
-          body: "Für ein perfektes Ergebnis müssen wir den Bildschirm aufnehmen:",
-          step1: "Wählen Sie die Option <strong>\"Tab\"</strong>.",
-          step2: "Wählen Sie <strong>diese Seite</strong> aus der Liste.",
-          step3: "Klicken Sie auf <strong>\"Teilen\"</strong>.",
-          note: "Die Maus wird automatisch ausgeblendet und die Karte zugeschnitten.",
-          warning: "Die Verwendung der maximalen Einstellungen (60 FPS / 4K) kann länger dauern und eine hohe CPU-Auslastung verursachen.",
-          fpsLabel: "FPS",
-          qualityLabel: "Qualität (Höhe)",
-          fpsNormal: "15 FPS (Normal)",
-          fpsCinema: "24 FPS (Kino)",
-          fpsSmooth: "30 FPS (Flüssig)",
-          fpsUltra: "60 FPS (Ultra)",
-          qualitySD: "480p (SD)",
-          qualityNormal: "720p (HD)",
-          qualityHigh: "1080p (Full HD)",
-          qualityQHD: "1440p (QHD)",
-          qualityUltra: "4K (UHD)",
-          cancel: "Abbrechen",
-          start: "Aufnahme starten", loadingLibs: "⏳ Laden...", capturing: "📸 Aufnahme...", encoding: "⚙️ Kodierung..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'Erstellen Sie Ihre eigenen personalisierten Sammelkarten',
-        hoverHint: '✨ Fahren Sie mit der Maus über die Karte, um den Effekt zu verstärken ✨',
-        elements: { Fire: 'Feuer', Water: 'Wasser', Nature: 'Natur', Electric: 'Elektro', Mystic: 'Mystik', Fighting: 'Kampf', Shadow: 'Schatten', Metal: 'Metall', Light: 'Licht', Dragon: 'Drache', Ice: 'Eis', Neutral: 'Neutral' },
-        effects: { none: { name: 'Keiner', description: 'Kein Effekt' }, holographic: { name: 'Holografisch', description: 'Klassischer Regenbogeneffekt' }, rainbow: { name: 'Regenbogen', description: 'Animierter mehrfarbiger Verlauf' }, gold: { name: 'Gold', description: 'Luxuriöse goldene Reflexionen' }, silver: { name: 'Silber', description: 'Metallische Silberreflexionen' }, prismatic: { name: 'Prismatisch', description: 'Brechender Kristalleffekt' }, neon: { name: 'Neon', description: 'Lebhaftes Neonleuchten' }, galaxy: { name: 'Galaxie', description: 'Sternenkosmischer Effekt' }, fire: { name: 'Flammen', description: 'Animierter Flammeneffekt' }, ice: { name: 'Frost', description: 'Funkelnder Eiseffekt' } },
-        stages: ['Basis', 'Phase 1', 'Phase 2', 'Spezial', 'Legendär', 'Mythisch', 'Ultra'],
-        rarities: { common: 'Gewöhnlich', uncommon: 'Ungewöhnlich', rare: 'Selten', epic: 'Episch', legendary: 'Legendär', mythic: 'Mythisch' },
-        sections: { image: 'Bild', basicInfo: 'Grundinformationen', rarityEffects: 'Effekte', abilities: 'Fähigkeiten', stats: 'Statistiken', appearance: 'Aussehen', cardStyle: 'Kartenstil', textStyle: 'Textstil', particles: 'Partikel', abilityStyle: 'Fähigkeiten-Stil', reset: 'Zurücksetzen' },
-        labels: { name: 'Name', hp: 'Lebenspunkte', element: 'Element', stage: 'Phase', description: 'Beschreibung', author: 'Autor', rarity: 'Seltenheit', effect: 'Effekt', weakness: 'Schwäche', resistance: 'Resistenz', retreatCost: 'Rückzugskosten', abilityName: 'Fähigkeitsname', damage: 'Schaden', energyCost: 'Energiekosten', abilityDesc: 'Fähigkeiten-Beschreibung', borderColor: 'Rahmenfarbe', backgroundColor: 'Kartenhintergrund', abilityBackground: 'Fähigkeitshintergrund', textColor: 'Textfarbe', font: 'Schriftart', size: 'Größe', weight: 'Dicke', zoom: 'Zoom', presets: 'Voreinstellungen', backgroundStyle: 'Hintergrundstil', solid: 'Einfarbig', gradient: 'Verlauf', cardInner: 'Karteninneres', primaryColor: 'Primärfarbe', secondaryColor: 'Sekundärfarbe', nameColor: 'Namensfarbe', hpColor: 'LP-Farbe', typeColor: 'Typfarbe', descColor: 'Beschreibungsfarbe', statsColor: 'Statistikfarbe', authorColor: 'Autorenfarbe', particleEmoji: 'Partikel-Emoji', animation: 'Animation' },
-        buttons: { addAbility: '+ Hinzufügen', remove: 'Entfernen', change: 'Ändern', recenter: 'Zentrieren', download: 'Herunterladen', autoRotate: '3D-Ansicht', resetCard: '🔄 Zurücksetzen', save: 'Speichern', load: 'Laden', deleteAll: 'Alle löschen' },
-        checkboxes: { showHP: 'Lebenspunkte anzeigen', showWeakRes: 'Schwäche/Resistenz anzeigen', showRetreat: 'Rückzugskosten anzeigen', showDescription: 'Beschreibung anzeigen', showTexture: 'Muster anzeigen', showParticles: 'Partikel anzeigen', showDamage: 'Schaden anzeigen' },
-        imageEditor: { dropHint: 'Bild hier ablegen', orClick: 'oder klicken zum Auswählen', formats: 'PNG,JPG,GIF,WEBP (max 15MB)', loading: 'Laden...', unsupportedFormat: 'Nicht unterstütztes Format. Verwenden Sie PNG,JPG,GIF oder WEBP.', fileTooLarge: 'Datei zu groß. Maximal 15MB.', searchPlaceholder: 'Tippen...' },
-        download: { title: '📥 Herunterladen', pngTitle: 'Transparentes PNG-Bild', jpgTitle: 'JPG-Bild mit Hintergrund', gifTitle: 'Animiertes GIF (3 Sekunden)', webpTitle: 'WebP-Bild', htmlTitle: 'Interaktive HTML-Datei', capturing: '⏳ Aufnahme...', encoding: '⚙️ Kodierung...' },
-        card: { hp: 'KP', weakness: 'Schwäche', resistance: 'Resistenz', cost: 'Kosten', illus: 'Illus.' },
-        defaults: { newAbility: 'Neue Fähigkeit', cardName: 'Meine Kreatur', description: 'Eine geheimnisvolle Kreatur mit unglaublichen Kräften.', author: 'Schöpfer', attackName1: 'Feuerball', attackDesc1: 'Wirf eine Münze. Bei Kopf ist das verteidigende Pokémon jetzt verbrannt.', attackName2: 'Flammenwurf', attackDesc2: 'Lege eine an dieses Pokémon angelegte Energie auf deinen Ablagestapel.' }, notifications: { success: 'Erfolg', error: 'Fehler', info: 'Information', warning: 'Warnung' },
-        display: { title: 'Anzeigeoptionen' },
-        tabs: { info: 'Info', content: 'Inhalt', visual: 'Visuell', style: 'Stil', colors: 'Farben' },
-        common: { cancel: 'Abbrechen', close: 'Schließen' },
-        prompts: { resetConfirm: 'Alle Kartendaten zurücksetzen?', saveHint: 'Ihre Karte (Text + Bild) wird lokal gespeichert.', saveSuccess: 'Karte erfolgreich gespeichert!', loadConfirm: 'Diese Karte laden? Nicht gespeicherte Änderungen gehen verloren.', deleteConfirm: 'Diese gespeicherte Karte löschen?', deleteAllConfirm: 'Alle Karten löschen? Dies kann nicht rückgängig gemacht werden.', allDeleted: 'Alle Karten gelöscht', noSaves: 'Keine gespeicherten Karten gefunden.', quotaError: 'Speicher voll! Löschen Sie alte Karten.', saveError: 'Fehler beim Speichern der Karte.', autoDeleteInfo: 'Karten werden nach 30 Tagen gelöscht.' },
-        textures: { none: 'Keine', grid: 'Gitter', scales: 'Schuppen', cross: 'Kreuz', stars: 'Sterne', hexagons: 'Sechsecke', lines: 'Linien', dots: 'Punkte', waves: 'Wellen', circuit: 'Schaltung' },
-        animations: { fire: 'Aufsteigend', water: 'Blasen', nature: 'Schwebend', electric: 'Funken', mystic: 'Magie', fighting: 'Einschlag', shadow: 'Verblassen', metal: 'Zahnräder', light: 'Strahlen', dragon: 'Majestätisch', ice: 'Schnee', neutral: 'Subtil' }
-      },
-      ru: {
-        gifModal: {
-          title: "📹 Высококачественная GIF-съемка",
-          body: "Для идеального результата нам нужно захватить экран:",
-          step1: "Выберите опцию <strong>\"Вкладка\"</strong>.",
-          step2: "Выберите <strong>эту страницу</strong> из списка.",
-          step3: "Нажмите <strong>\"Поделиться\"</strong>.",
-          note: "Мышь будет автоматически скрыта, а карта обрезана.",
-          warning: "Использование максимальных настроек (60 FPS / 4K) может занять больше времени и использовать много ресурсов ЦП.",
-          fpsLabel: "FPS",
-          qualityLabel: "Качество (Высота)",
-          fpsNormal: "15 FPS (Нормально)",
-          fpsCinema: "24 FPS (Кино)",
-          fpsSmooth: "30 FPS (Плавнo)",
-          fpsUltra: "60 FPS (Ультра)",
-          qualitySD: "480p (SD)",
-          qualityNormal: "720p (HD)",
-          qualityHigh: "1080p (Full HD)",
-          qualityQHD: "1440p (QHD)",
-          qualityUltra: "4K (UHD)",
-          cancel: "Отмена",
-          start: "Начать захват", loadingLibs: "⏳ Загрузка...", capturing: "📸 Захват...", encoding: "⚙️ Кодирование..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'Создавайте свои собственные коллекционные карты',
-        hoverHint: '✨ Наведите на карту, чтобы усилить эффект ✨',
-        elements: { Fire: 'Огонь', Water: 'Вода', Nature: 'Природа', Electric: 'Электричество', Mystic: 'Мистика', Fighting: 'Боевой', Shadow: 'Тень', Metal: 'Металл', Light: 'Свет', Dragon: 'Дракон', Ice: 'Лёд', Neutral: 'Нейтральный' },
-        effects: { none: { name: 'Нет', description: 'Без эффекта' }, holographic: { name: 'Голографический', description: 'Классический радужный эффект' }, rainbow: { name: 'Радуга', description: 'Анимированный многоцветный градиент' }, gold: { name: 'Золото', description: 'Роскошные золотые отражения' }, silver: { name: 'Серебро', description: 'Металлические серебряные отражения' }, prismatic: { name: 'Призматический', description: 'Эффект преломляющего кристалла' }, neon: { name: 'Неон', description: 'Яркое неоновое свечение' }, galaxy: { name: 'Галактика', description: 'Звёздный космический эффект' }, fire: { name: 'Пламя', description: 'Анимированный эффект огня' }, ice: { name: 'Лёд', description: 'Сверкающий ледяной эффект' } },
-        stages: ['Базовый', 'Стадия 1', 'Стадия 2', 'Особый', 'Легендарный', 'Мифический', 'Ультра'],
-        rarities: { common: 'Обычная', uncommon: 'Необычная', rare: 'Редкая', epic: 'Эпическая', legendary: 'Легендарная', mythic: 'Мифическая' },
-        sections: { image: 'Изображение', basicInfo: 'Основная информация', rarityEffects: 'Эффекты', abilities: 'Способности', stats: 'Характеристики', appearance: 'Внешний вид', cardStyle: 'Стиль карты', textStyle: 'Стиль текста', particles: 'Частицы', abilityStyle: 'Стиль способностей', reset: 'Сброс' },
-        labels: { name: 'Имя', hp: 'Очки здоровья', element: 'Элемент', stage: 'Стадия', description: 'Описание', author: 'Автор', rarity: 'Редкость', effect: 'Эффект', weakness: 'Слабость', resistance: 'Сопротивление', retreatCost: 'Стоимость отступления', abilityName: 'Название способности', damage: 'Урон', energyCost: 'Стоимость энергии', abilityDesc: 'Описание способностей', borderColor: 'Цвет рамки', backgroundColor: 'Фон карты', abilityBackground: 'Фон способности', textColor: 'Цвет текста', font: 'Шрифт', size: 'Размер', weight: 'Вес', zoom: 'Масштаб', presets: 'Предустановки', backgroundStyle: 'Стиль фона', solid: 'Сплошной', gradient: 'Градиент', cardInner: 'Внутренняя часть карты', primaryColor: 'Основной цвет', secondaryColor: 'Вторичный цвет', nameColor: 'Цвет имени', hpColor: 'Цвет ОЗ', typeColor: 'Цвет типа', descColor: 'Цвет описания', statsColor: 'Цвет хар-к', authorColor: 'Цвет автора', particleEmoji: 'Эмодзи частиц', animation: 'Анимация' },
-        buttons: { addAbility: '+ Добавить', remove: 'Удалить', change: 'Изменить', recenter: 'Центрировать', download: 'Скачать', autoRotate: '3D-вид', resetCard: '🔄 Сброс', save: 'Сохранить', load: 'Загрузить', deleteAll: 'Удалить все' },
-        checkboxes: { showHP: 'Показать очки здоровья', showWeakRes: 'Показать слабость/сопротивление', showRetreat: 'Показать стоимость отступления', showDescription: 'Показать описание', showTexture: 'Показать текстуру', showParticles: 'Показать частицы', showDamage: 'Показать урон' },
-        imageEditor: { dropHint: 'Перетащите изображение сюда', orClick: 'или нажмите для выбора', formats: 'PNG,JPG,GIF,WEBP (макс 15МБ)', loading: 'Загрузка...', unsupportedFormat: 'Неподдерживаемый формат. Используйте PNG,JPG,GIF или WEBP.', fileTooLarge: 'Файл слишком большой. Максимум 15МБ.', searchPlaceholder: 'Введите...' },
-        download: { title: '📥 Скачать', pngTitle: 'Прозрачное PNG изображение', jpgTitle: 'JPG изображение с фоном', gifTitle: 'Анимированный GIF (3 секунды)', webpTitle: 'WebP изображение', htmlTitle: 'Интерактивный HTML файл', capturing: '⏳ Захват...', encoding: '⚙️ Кодирование...' },
-        card: { hp: 'ОЗ', weakness: 'Слабость', resistance: 'Сопротивление', cost: 'Стоимость', illus: 'Худ.' },
-        defaults: { newAbility: 'Новая способность', cardName: 'Моё Существо', description: 'Таинственное существо с невероятными силами.', author: 'Создатель', attackName1: 'Огненный шар', attackDesc1: 'Подбросьте монету. Если выпадет орел, Защищающийся покемон теперь обожжен.', attackName2: 'Огнемет', attackDesc2: 'Сбросьте Энергию, прикрепленную к этому покемону.' }, notifications: { success: 'Успех', error: 'Ошибка', info: 'Информация', warning: 'Предупреждение' },
-        display: { title: 'Параметры отображения' },
-        tabs: { info: 'Инфо', content: 'Содержание', visual: 'Визуал', style: 'Стиль', colors: 'Цвета' },
-        common: { cancel: 'Отмена', close: 'Закрыть' },
-        prompts: { resetConfirm: 'Сбросить все данные карты?', saveHint: 'Ваша карта (текст + изображение) будет сохранена локально.', saveSuccess: 'Карта успешно сохранена!', loadConfirm: 'Загрузить эту карту? Несохранённые изменения будут потеряны.', deleteConfirm: 'Удалить эту сохранённую карту?', deleteAllConfirm: 'Удалить все карты? Это действие нельзя отменить.', allDeleted: 'Все карты удалены', noSaves: 'Сохранённые карты не найдены.', quotaError: 'Хранилище заполнено! Удалите старые карты.', saveError: 'Ошибка сохранения карты.', autoDeleteInfo: 'Карты удаляются через 30 дней.' },
-        textures: { none: 'Нет', grid: 'Сетка', scales: 'Чешуя', cross: 'Крест', stars: 'Звезды', hexagons: 'Шестиугольники', lines: 'Линии', dots: 'Точки', waves: 'Волны', circuit: 'Схема' },
-        animations: { fire: 'Восходящий', water: 'Пузыри', nature: 'Парящий', electric: 'Искры', mystic: 'Магия', fighting: 'Удар', shadow: 'Затухание', metal: 'Шестеренки', light: 'Сияние', dragon: 'Величественный', ice: 'Снег', neutral: 'Тонкий' }
-      },
-      ja: {
-        gifModal: {
-          title: "📹 高品質GIFキャプチャ",
-          body: "完璧な結果を得るために、画面をキャプチャする必要があります：",
-          step1: "<strong>「タブ」</strong>オプションを選択します。",
-          step2: "リストから<strong>このページ</strong>を選択します。",
-          step3: "<strong>「共有」</strong>をクリックします。",
-          note: "マウスは自動的に非表示になり、カードは切り取られます。",
-          warning: "最大設定（60 FPS / 4K）を使用すると、時間がかかり、CPU使用率が高くなる可能性があります。",
-          fpsLabel: "FPS",
-          qualityLabel: "品質 (高さ)",
-          fpsNormal: "15 FPS (通常)",
-          fpsCinema: "24 FPS (シネマ)",
-          fpsSmooth: "30 FPS (スムーズ)",
-          fpsUltra: "60 FPS (ウルトラ)",
-          qualitySD: "480p (標準)",
-          qualityNormal: "720p (高画質)",
-          qualityHigh: "1080p (フルHD)",
-          qualityQHD: "1440p (2K)",
-          qualityUltra: "4K (超高画質)",
-          cancel: "キャンセル",
-          start: "キャプチャ開始", loadingLibs: "⏳ 読み込み中...", capturing: "📸 キャプチャ中...", encoding: "⚙️ エンコード中..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: 'オリジナルのコレクションカードを作成しよう',
-        hoverHint: '✨ カードにマウスを乗せるとエフェクトが強くなります ✨',
-        elements: { Fire: '炎', Water: '水', Nature: '自然', Electric: '電気', Mystic: '神秘', Fighting: '格闘', Shadow: '闇', Metal: '鋼', Light: '光', Dragon: 'ドラゴン', Ice: '氷', Neutral: '無' },
-        effects: { none: { name: 'なし', description: 'エフェクトなし' }, holographic: { name: 'ホログラフィック', description: 'クラシックな虹色エフェクト' }, rainbow: { name: 'レインボー', description: 'アニメーションカラーグラデーション' }, gold: { name: 'ゴールド', description: '豪華な金色の反射' }, silver: { name: 'シルバー', description: 'メタリックな銀色の反射' }, prismatic: { name: 'プリズマティック', description: '屈折するクリスタルエフェクト' }, neon: { name: 'ネオン', description: '鮮やかなネオンの輝き' }, galaxy: { name: 'ギャラクシー', description: '星空の宇宙エフェクト' }, fire: { name: 'フレイム', description: 'アニメーション炎エフェクト' }, ice: { name: 'フロスト', description: 'きらめく氷エフェクト' } },
-        stages: ['ベーシック', 'ステージ1', 'ステージ2', 'スペシャル', 'レジェンダリー', 'ミシック', 'ウルトラ'],
-        rarities: { common: 'コモン', uncommon: 'アンコモン', rare: 'レア', epic: 'エピック', legendary: 'レジェンダリー', mythic: 'ミシック' },
-        sections: { image: '画像', basicInfo: '基本情報', rarityEffects: 'エフェクト', abilities: '技', stats: 'ステータス', appearance: '外観', cardStyle: 'カードスタイル', textStyle: 'テキストスタイル', particles: 'パーティクル', abilityStyle: '技のスタイル', reset: 'リセット' },
-        labels: { name: '名前', hp: 'HP', element: 'タイプ', stage: 'ステージ', description: '説明', author: '作者', rarity: 'レアリティ', effect: 'エフェクト', weakness: '弱点', resistance: '抵抗力', retreatCost: 'にげるコスト', abilityName: '技名', damage: 'ダメージ', energyCost: 'エネルギーコスト', abilityDesc: '技の説明', borderColor: '枠の色', backgroundColor: 'カードの背景', abilityBackground: '技の背景', textColor: '文字色', font: 'フォント', size: 'サイズ', weight: '太さ', zoom: 'ズーム', presets: 'プリセット', backgroundStyle: '背景スタイル', solid: '単色', gradient: 'グラデーション', cardInner: 'カード内側', primaryColor: 'メインカラー', secondaryColor: 'サブカラー', nameColor: '名前の色', hpColor: 'HPの色', typeColor: 'タイプの色', descColor: '説明の色', statsColor: 'ステータスの色', authorColor: '作者の色', particleEmoji: 'パーティクル絵文字', animation: 'アニメーション' },
-        buttons: { addAbility: '+ 追加', remove: '削除', change: '変更', recenter: '中央揃え', download: 'ダウンロード', autoRotate: '3Dビュー', resetCard: '🔄 リセット', save: '保存', load: '読み込み', deleteAll: 'すべて削除' },
-        checkboxes: { showHP: 'HPを表示', showWeakRes: '弱点/抵抗力を表示', showRetreat: 'にげるコストを表示', showDescription: '説明を表示', showTexture: 'テクスチャを表示', showParticles: 'パーティクルを表示', showDamage: 'ダメージを表示' },
-        imageEditor: { dropHint: 'ここに画像をドロップ', orClick: 'またはクリックして選択', formats: 'PNG,JPG,GIF,WEBP (最大15MB)', loading: '読み込み中...', unsupportedFormat: 'サポートされていない形式です。PNG、JPG、GIF、WEBPを使用してください。', fileTooLarge: 'ファイルが大きすぎます。最大15MBです。', searchPlaceholder: '入力...' },
-        download: { title: '📥 ダウンロード', pngTitle: '透過PNG画像', jpgTitle: '背景付きJPG画像', gifTitle: 'アニメーションGIF（3秒）', webpTitle: 'WebP画像', htmlTitle: 'インタラクティブHTMLファイル', capturing: '⏳ キャプチャ中...', encoding: '⚙️ エンコード中...' },
-        card: { hp: 'HP', weakness: '弱点', resistance: '抵抗力', cost: 'コスト', illus: 'イラスト' },
-        defaults: { newAbility: '新しい技', cardName: 'マイ・クリーチャー', description: '信じられないほどの力を持つ神秘的な生き物。', author: 'クリエイター', attackName1: '火の玉', attackDesc1: 'コインを1回投げる。オモテなら、相手のバトルポケモンをやけどにする。', attackName2: 'かえんほうしゃ', attackDesc2: 'このポケモンについているエネルギーを1個選び、トラッシュする。' }, notifications: { success: '成功', error: 'エラー', info: '情報', warning: '警告' },
-        display: { title: '表示オプション' },
-        tabs: { info: '情報', content: 'コンテンツ', visual: 'ビジュアル', style: 'スタイル', colors: '色' },
-        common: { cancel: 'キャンセル', close: '閉じる' },
-        prompts: { resetConfirm: 'すべてのカードデータをリセットしますか？', saveHint: 'カード（テキスト + 画像）がローカルに保存されます。', saveSuccess: 'カードが正常に保存されました！', loadConfirm: 'このカードを読み込みますか？未保存の変更は失われます。', deleteConfirm: 'この保存済みカードを削除しますか？', deleteAllConfirm: 'すべてのカードを削除しますか？この操作は元に戻せません。', allDeleted: 'すべてのカードが削除されました', noSaves: '保存済みカードが見つかりません。', quotaError: 'ストレージがいっぱいです！古いカードを削除してください。', saveError: 'カードの保存中にエラーが発生しました。', autoDeleteInfo: '保存されたカードは30日後に削除されます。' },
-        textures: { none: 'なし', grid: 'グリッド', scales: '鱗', cross: 'クロス', stars: '星', hexagons: 'ヘキサゴン', lines: 'ライン', dots: 'ドット', waves: 'ウェーブ', circuit: '回路' },
-        animations: { fire: '上昇', water: '泡', nature: '浮遊', electric: '火花', mystic: '魔法', fighting: '衝撃', shadow: 'フェード', metal: '歯車', light: '放射', dragon: '威厳', ice: '雪', neutral: '微細' }
-      },
-      zh: {
-        gifModal: {
-          title: "📹 高质量GIF捕获",
-          body: "为了获得完美的效果，我们需要捕获屏幕：",
-          step1: "选择 <strong>「标签页」</strong> 选项。",
-          step2: "从列表中选择 <strong>此页面</strong>。",
-          step3: "点击 <strong>「分享」</strong>。",
-          note: "鼠标将自动隐藏，卡片将被裁剪。",
-          warning: "使用最大设置（60 FPS / 4K）可能需要更长时间并占用大量CPU。",
-          fpsLabel: "FPS",
-          qualityLabel: "质量 (高度)",
-          fpsNormal: "15 FPS (正常)",
-          fpsCinema: "24 FPS (电影)",
-          fpsSmooth: "30 FPS (流畅)",
-          fpsUltra: "60 FPS (超高)",
-          qualitySD: "480p (标清)",
-          qualityNormal: "720p (高清)",
-          qualityHigh: "1080p (全高清)",
-          qualityQHD: "1440p (2K超清)",
-          qualityUltra: "4K (超高清)",
-          cancel: "取消",
-          start: "开始捕获", loadingLibs: "⏳ 加载中...", capturing: "📸 捕获中...", encoding: "⚙️ 编码中..."
-        },
-        appTitle: 'Card Creator',
-        appSubtitle: '创建您自己的个性化收藏卡',
-        hoverHint: '✨ 将鼠标悬停在卡片上以增强效果 ✨',
-        elements: { Fire: '火', Water: '水', Nature: '自然', Electric: '电', Mystic: '神秘', Fighting: '格斗', Shadow: '暗', Metal: '钢', Light: '光', Dragon: '龙', Ice: '冰', Neutral: '无' },
-        effects: { none: { name: '无', description: '无效果' }, holographic: { name: '全息', description: '经典彩虹效果' }, rainbow: { name: '彩虹', description: '动画多色渐变' }, gold: { name: '金色', description: '奢华金色反射' }, silver: { name: '银色', description: '金属银色反射' }, prismatic: { name: '棱镜', description: '折射水晶效果' }, neon: { name: '霓虹', description: '鲜艳霓虹光芒' }, galaxy: { name: '星系', description: '星空宇宙效果' }, fire: { name: '火焰', description: '动画火焰效果' }, ice: { name: '冰霜', description: '闪烁冰晶效果' } },
-        stages: ['基础', '阶段1', '阶段2', '特殊', '传说', '神话', '究极'],
-        rarities: { common: '普通', uncommon: '稀有', rare: '珍贵', epic: '史诗', legendary: '传说', mythic: '神话' },
-        sections: { image: '图片', basicInfo: '基本信息', rarityEffects: '效果', abilities: '技能', stats: '属性', appearance: '外观', cardStyle: '卡片样式', textStyle: '文本样式', particles: '粒子系统', abilityStyle: '技能样式', reset: '重置' },
-        labels: { name: '名称', hp: '生命值', element: '属性', stage: '阶段', description: '描述', author: '作者', rarity: '稀有度', effect: '效果', weakness: '弱点', resistance: '抗性', retreatCost: '撤退消耗', abilityName: '技能名称', damage: '伤害', energyCost: '能量消耗', abilityDesc: '技能描述', borderColor: '边框颜色', backgroundColor: '卡片背景', abilityBackground: '技能背景', textColor: '文字颜色', font: '字体', size: '大小', weight: '粗细', zoom: '缩放', backgroundStyle: '背景样式', solid: '纯色', gradient: '渐变', cardInner: '卡片内部', primaryColor: '主色', secondaryColor: '副色', presets: '预设', nameColor: '名称颜色', hpColor: '生命值颜色', typeColor: '属性颜色', descColor: '描述颜色', statsColor: '属性颜色', authorColor: '作者颜色', particleEmoji: '粒子表情', animation: '动画' },
-        buttons: { addAbility: '+ 添加', remove: '删除', change: '更改', recenter: '居中', download: '下载', autoRotate: '3D视图', resetCard: '🔄 重置', save: '保存', load: '加载', deleteAll: '全部删除' },
-        checkboxes: { showHP: '显示生命值', showWeakRes: '显示弱点/抗性', showRetreat: '显示撤退消耗', showDescription: '显示描述', showTexture: '显示纹理', showParticles: '显示粒子', showDamage: '显示伤害' },
-        imageEditor: { dropHint: '将图片拖放到这里', orClick: '或点击选择', formats: 'PNG,JPG,GIF,WEBP (最大15MB)', loading: '加载中...', unsupportedFormat: '不支持的格式。请使用PNG、JPG、GIF或WEBP。', fileTooLarge: '文件太大。最大15MB。', searchPlaceholder: '输入...' },
-        download: { title: '📥 下载', pngTitle: '透明PNG图片', jpgTitle: '带背景的JPG图片', gifTitle: '动画GIF（3秒）', webpTitle: 'WebP图片', htmlTitle: '交互式HTML文件', capturing: '⏳ 捕获中...', encoding: '⚙️ 编码中...' },
-        card: { hp: 'HP', weakness: '弱点', resistance: '抗性', cost: '消耗', illus: '画师' },
-        defaults: { newAbility: '新技能', cardName: '我的生物', description: '具有不可思议力量的神秘生物。', author: '创作者', attackName1: '火球', attackDesc1: '投掷硬币。如果是正面，防守宝可梦现在被烧伤。', attackName2: '喷射火焰', attackDesc2: '丢弃该宝可梦身上的一个能量。' }, notifications: { success: '成功', error: '错误', info: '信息', warning: '警告' },
-        display: { title: '显示选项' },
-        tabs: { info: '信息', content: '内容', visual: '视觉', style: '样式', colors: '颜色' },
-        common: { cancel: '取消', close: '关闭' },
-        prompts: { resetConfirm: '重置所有卡片数据？', saveHint: '您的卡片（文字 + 图片）将保存在本地。', saveSuccess: '卡片保存成功！', loadConfirm: '加载此卡片？未保存的更改将丢失。', deleteConfirm: '删除此已保存的卡片？', deleteAllConfirm: '删除所有卡片？此操作无法撤销。', allDeleted: '所有卡片已删除', noSaves: '未找到已保存的卡片。', quotaError: '存储空间已满！请删除旧卡片。', saveError: '保存卡片时出错。', autoDeleteInfo: '卡片将在30天后自动删除。' },
-        textures: { none: '无', grid: '网格', scales: '鳞片', cross: '十字', stars: '星星', hexagons: '六边形', lines: '线条', dots: '点阵', waves: '波浪', circuit: '电路' },
-        animations: { fire: '上升', water: '气泡', nature: '漂浮', electric: '火花', mystic: '魔法', fighting: '冲击', shadow: '淡入淡出', metal: '齿轮', light: '辐射', dragon: '威严', ice: '雪', neutral: '微妙' }
-      },
-    };
     const LanguageContext = createContext();
     const useLanguage = () => {
       const context = useContext(LanguageContext);
@@ -500,99 +183,6 @@
         throw new Error('useNotification must be used within a NotificationProvider');
       }
       return context;
-    };
-    const CARD_LIMITS = {
-      HP_MIN: 0, HP_MAX: 999, DAMAGE_MIN: 0, DAMAGE_MAX: 9999, COST_MIN: 0, COST_MAX: 6, RETREAT_MIN: 0, RETREAT_MAX: 5, NAME_MAX_LENGTH: 25, DESC_MAX_LENGTH: 150, ATTACK_DESC_MAX_LENGTH: 80, AUTHOR_MAX_LENGTH: 30, MAX_FILE_SIZE: 25 * 1024 * 1024, // 25MB
-      ZOOM_MIN: 1, ZOOM_MAX: 3,
-    };
-    const ELEMENT_TYPES = {
-      Fire: { icon: '🔥', primary: '#FF6B35', secondary: '#FFE066', weakness: '💧', resistance: '🌿' },
-      Water: { icon: '💧', primary: '#4FC3F7', secondary: '#E1F5FE', weakness: '⚡', resistance: '🔥' },
-      Nature: { icon: '🌿', primary: '#66BB6A', secondary: '#C8E6C9', weakness: '🔥', resistance: '💧' },
-      Electric: { icon: '⚡', primary: '#FFEE58', secondary: '#FFF9C4', weakness: '👊', resistance: '⚙️' },
-      Mystic: { icon: '🔮', primary: '#BA68C8', secondary: '#F3E5F5', weakness: '🌑', resistance: '👊' },
-      Fighting: { icon: '👊', primary: '#D84315', secondary: '#FFAB91', weakness: '🔮', resistance: '🌑' },
-      Shadow: { icon: '🌑', primary: '#5D4037', secondary: '#A1887F', weakness: '✨', resistance: '🔮' },
-      Metal: { icon: '⚙️', primary: '#90A4AE', secondary: '#ECEFF1', weakness: '🔥', resistance: '🌿' },
-      Light: { icon: '✨', primary: '#FFD54F', secondary: '#FFF8E1', weakness: '🌑', resistance: '🔮' },
-      Dragon: { icon: '🐉', primary: '#7E57C2', secondary: '#D1C4E9', weakness: '❄️', resistance: '🔥' },
-      Ice: { icon: '❄️', primary: '#4DD0E1', secondary: '#E0F7FA', weakness: '🔥', resistance: '💧' },
-      Neutral: { icon: '⭐', primary: '#BDBDBD', secondary: '#F5F5F5', weakness: '👊', resistance: '👻' },
-    };
-    const ELEMENT_KEYS = Object.keys(ELEMENT_TYPES);
-
-    const STAGES = ['Base', 'Stage1', 'Stage2', 'Special', 'Legendary', 'Mythic', 'Ultra'];
-
-    const ELEMENT_TEXTURES = {
-      Fire: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c-5 10-15 15-15 25 0 8 7 15 15 15s15-7 15-15c0-10-10-15-15-25z' fill='%23ff6b3520' /%3E%3Cpath d='M30 15c-3 6-9 9-9 15 0 5 4 9 9 9s9-4 9-9c0-6-6-9-9-15z' fill='%23ff450015' /%3E%3C/svg%3E")`, Water: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='8' fill='%2300bcd420' /%3E%3Ccircle cx='45' cy='35' r='6' fill='%232196f315' /%3E%3Ccircle cx='25' cy='45' r='10' fill='%2303a9f418' /%3E%3Cpath d='M5 30 Q15 25 25 30 T45 30 T60 30' stroke='%2300bcd415' fill='none' stroke-width='2'/%3E%3C/svg%3E")`, Nature: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 15 30 25 Q25 15 30 5z' fill='%234caf5020' /%3E%3Cpath d='M15 30 Q25 35 20 45 Q15 35 15 30z' fill='%238bc34a18' /%3E%3Cpath d='M45 25 Q50 35 45 45 Q40 35 45 25z' fill='%234caf5015' /%3E%3Ccircle cx='10' cy='50' r='3' fill='%234caf5012' /%3E%3C/svg%3E")`, Electric: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L25 25 L35 20 L20 60 L25 30 L15 35 Z' fill='%23ffeb3b15' /%3E%3Cpath d='M50 10 L48 20 L52 18 L45 35' stroke='%23ffc10710' fill='none' stroke-width='2'/%3E%3Ccircle cx='10' cy='45' r='2' fill='%23ffeb3b20' /%3E%3C/svg%3E")`, Mystic: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='30,5 32,15 40,10 35,18 45,20 35,22 40,30 32,25 30,35 28,25 20,30 25,22 15,20 25,18 20,10 28,15' fill='%239c27b015' /%3E%3Ccircle cx='10' cy='50' r='4' fill='%23e91e6310' /%3E%3Ccircle cx='50' cy='45' r='3' fill='%239c27b012' /%3E%3C/svg%3E")`, Fighting: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10 L50 50' stroke='%23f4433615' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M50 10 L10 50' stroke='%23ff572215' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M30 5 L30 55' stroke='%23f4433610' stroke-width='3'/%3E%3Cpath d='M5 30 L55 30' stroke='%23f4433610' stroke-width='3'/%3E%3C/svg%3E")`, Shadow: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='30' cy='50' rx='20' ry='8' fill='%2300000015' /%3E%3Cellipse cx='15' cy='30' rx='10' ry='5' fill='%2300000010' /%3E%3Cellipse cx='45' cy='20' rx='12' ry='6' fill='%2300000012' /%3E%3Cpath d='M20 10 Q30 20 25 35 Q35 25 40 40' stroke='%2300000008' fill='none' stroke-width='3'/%3E%3C/svg%3E")`, Metal: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='5' y='5' width='20' height='20' rx='2' fill='none' stroke='%2360606015' stroke-width='2'/%3E%3Crect x='35' y='35' width='20' height='20' rx='2' fill='none' stroke='%2360606015' stroke-width='2'/%3E%3Ccircle cx='15' cy='15' r='3' fill='%2390909020' /%3E%3Ccircle cx='45' cy='45' r='3' fill='%2390909020' /%3E%3Ccircle cx='45' cy='15' r='2' fill='%2360606015' /%3E%3Ccircle cx='15' cy='45' r='2' fill='%2360606015' /%3E%3C/svg%3E")`, Light: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='15' fill='%23fff59d10' /%3E%3Cpath d='M30 5 L30 15 M30 45 L30 55 M5 30 L15 30 M45 30 L55 30 M12 12 L19 19 M41 41 L48 48 M12 48 L19 41 M41 19 L48 12' stroke='%23ffeb3b15' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`, Dragon: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 20 Q20 15 30 20 Q40 15 50 20 L50 35 Q40 40 30 35 Q20 40 10 35 Z' fill='%23673ab720' /%3E%3Cpath d='M10 35 Q20 30 30 35 Q40 30 50 35 L50 50 Q40 55 30 50 Q20 55 10 50 Z' fill='%23673ab715' /%3E%3Cpath d='M10 5 Q20 0 30 5 Q40 0 50 5 L50 20 Q40 25 30 20 Q20 25 10 20 Z' fill='%23673ab712' /%3E%3C/svg%3E")`, Ice: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L30 55 M15 15 L45 45 M45 15 L15 45' stroke='%2381d4fa20' stroke-width='2'/%3E%3Cpath d='M30 20 L25 15 M30 20 L35 15 M30 40 L25 45 M30 40 L35 45' stroke='%2329b6f618' stroke-width='2'/%3E%3Cpolygon points='30,25 33,30 30,35 27,30' fill='%2381d4fa15' /%3E%3C/svg%3E")`, Neutral: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='%2390909010' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='10' fill='none' stroke='%2390909008' stroke-width='1'/%3E%3C/svg%3E")`,
-    };
-    /* Textures SVG Patterns */
-    const CARD_TEXTURES = {
-      none: '',
-      grid: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M20 0L0 0 0 20' fill='none' stroke='black' stroke-width='2'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E")`,
-      scales: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='scales' width='20' height='10' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 10 Q10 20 20 10 M10 0 Q20 10 30 0 M-10 0 Q0 10 10 0' fill='none' stroke='black' stroke-width='2'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23scales)'/%3E%3C/svg%3E")`,
-      cross: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='cross' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M10 5v10M5 10h10' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23cross)'/%3E%3C/svg%3E")`,
-      stars: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='stars' width='30' height='30' patternUnits='userSpaceOnUse'%3E%3Cpath d='M15 5l3 7 7 3-7 3-3 7-3-7-7-3 7-3z' fill='black'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23stars)'/%3E%3C/svg%3E")`,
-      hexagons: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='hex' width='28' height='49' patternUnits='userSpaceOnUse'%3E%3Cpath d='M14 0l14 8.1v16.2l-14 8.1L0 24.3V8.1z' fill='none' stroke='black' stroke-width='2'/%3E%3Cpath d='M14 49V32.4' stroke='black' stroke-width='2'/%3E%3Cpath d='M0 8.1L-14 0m28 0l14 8.1' stroke='black' stroke-width='2'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23hex)'/%3E%3C/svg%3E")`,
-      lines: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='lines' width='20' height='20' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'%3E%3Cline x1='0' y1='0' x2='0' y2='20' stroke='black' stroke-width='3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23lines)'/%3E%3C/svg%3E")`,
-      dots: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='2.5' fill='black'/%3E%3C/svg%3E")`,
-      waves: `url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.326-2h-6.292zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='black' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-      circuit: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10 L20 10 L20 30 L50 30 L50 10 M80 10 L80 40 L60 40 M10 80 L30 80 L30 60 L60 60 L60 80 M90 90 L80 90 L80 70 L50 70' fill='none' stroke='black' stroke-width='2'/%3E%3Ccircle cx='20' cy='30' r='3' fill='black'/%3E%3Ccircle cx='60' cy='40' r='3' fill='black'/%3E%3Ccircle cx='30' cy='60' r='3' fill='black'/%3E%3Ccircle cx='80' cy='70' r='3' fill='black'/%3E%3C/svg%3E")`,
-    };
-    const ELEMENT_PARTICLES = {
-      Fire: { emoji: '🔥', alt: ['🔥', '✨'], count: 12, speed: 'fast', direction: 'up' },
-      Water: { emoji: '💧', alt: ['🫧', '💦'], count: 12, speed: 'slow', direction: 'up' },
-      Nature: { emoji: '🍃', alt: ['🌿', '🌸'], count: 11, speed: 'medium', direction: 'float' },
-      Electric: { emoji: '⚡', alt: ['⚡', '⭐'], count: 9, speed: 'fast', direction: 'random' },
-      Mystic: { emoji: '🔮', alt: ['✨', '💫'], count: 10, speed: 'slow', direction: 'float' },
-      Fighting: { emoji: '💥', alt: ['💢', '⚡'], count: 8, speed: 'fast', direction: 'random' },
-      Shadow: { emoji: '🌑', alt: ['💀', '👻'], count: 7, speed: 'slow', direction: 'down' },
-      Metal: { emoji: '⚙️', alt: ['⛓️', '🔩'], count: 6, speed: 'slow', direction: 'float' },
-      Light: { emoji: '✨', alt: ['⭐', '🌟'], count: 12, speed: 'medium', direction: 'radial' },
-      Dragon: { emoji: '🐉', alt: ['💎', '🔥'], count: 6, speed: 'medium', direction: 'float' },
-      Ice: { emoji: '❄️', alt: ['❅', '💎'], count: 14, speed: 'slow', direction: 'down' },
-      Neutral: { emoji: '✦', alt: ['⚪', '◆'], count: 5, speed: 'slow', direction: 'float' },
-    };
-    const FONTS = [
-      { id: 'nunito', name: 'Nunito', family: "'Nunito', sans-serif" },
-      { id: 'poppins', name: 'Poppins', family: "'Poppins', sans-serif" },
-      { id: 'roboto', name: 'Roboto', family: "'Roboto', sans-serif" },
-      { id: 'oswald', name: 'Oswald', family: "'Oswald', sans-serif" },
-      { id: 'playfair', name: 'Playfair Display', family: "'Playfair Display', serif" },
-      { id: 'bangers', name: 'Bangers', family: "'Bangers', cursive" },
-      { id: 'cinzel', name: 'Cinzel', family: "'Cinzel', serif" },
-      { id: 'dancing', name: 'Dancing Script', family: "'Dancing Script', cursive" },
-      { id: 'orbitron', name: 'Orbitron', family: "'Orbitron', sans-serif" },
-      { id: 'amatic', name: 'Amatic SC', family: "'Amatic SC', cursive" },
-    ];
-    const PARTICLE_ANIMATIONS = [
-      { key: 'fire', label: 'Rising (Fire)' },
-      { key: 'water', label: 'Bubbles (Water)' },
-      { key: 'nature', label: 'Floating (Nature)' },
-      { key: 'electric', label: 'Sparks (Electric)' },
-      { key: 'mystic', label: 'Magic (Mystic)' },
-      { key: 'fighting', label: 'Impact (Fighting)' },
-      { key: 'shadow', label: 'Fade (Shadow)' },
-      { key: 'metal', label: 'Gears (Metal)' },
-      { key: 'light', label: 'Radiate (Light)' },
-      { key: 'dragon', label: 'Majestic (Dragon)' },
-      { key: 'ice', label: 'Snow (Ice)' },
-      { key: 'neutral', label: 'Subtle (Neutral)' }
-    ];
-    const getInitialCardData = (t) => ({
-      name: t.defaults.cardName, hp: 120, type: 'Fire', stage: 'Base', weakness: '💧', resistance: '🌿', retreatCost: 2, description: t.defaults.description, author: t.defaults.author, font: 'nunito', borderColor: '', backgroundColor: '', abilityBackground: 'rgba(255, 255, 255, 0.7)', textColor: '', nameColor: '', hpColor: '', typeColor: '', descColor: '', statsColor: '', authorColor: '', showHP: true, showWeakRes: true, showRetreat: true, showDescription: true, showParticles: true,
-      colorMode: 'solid', primaryColor: '#ff6b35', secondaryColor: '#ff9e80', customIcon: '🔥', particleEmoji: '🔥', particleAnimation: 'fire',
-      cardInnerBackground: 'rgba(255, 255, 255, 0.95)', cardInnerColorMode: 'solid', cardInnerSecondaryBackground: '#f5f5fa',
-      texture: 'none',
-      /* Typography Defaults */
-      nameSize: 16, nameWeight: '700', hpSize: 18, hpWeight: '700', stageSize: 9, stageWeight: '700', descSize: 8, descWeight: '400', statsSize: 8, statsWeight: '400', authorSize: 6, authorWeight: '400', moveNameSize: 12, moveNameWeight: '700', moveDescSize: 8, moveDescWeight: '400',
-    });
-    const getInitialAttacks = (t) => ([
-      { id: '1', name: t.defaults.attackName1, damage: 60, cost: 2, desc: t.defaults.attackDesc1, showDamage: true, background: 'rgba(255, 255, 255, 0.7)', colorMode: 'solid', secondaryBackground: '#ffffff' },
-      { id: '2', name: t.defaults.attackName2, damage: 90, cost: 3, desc: t.defaults.attackDesc2, showDamage: true, background: 'rgba(255, 255, 255, 0.7)', colorMode: 'solid', secondaryBackground: '#ffffff' },
-    ]);
-    const INITIAL_IMAGE_SETTINGS = {
-      zoom: 1, offsetX: 0, offsetY: 0,
     };
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const parseIntSafe = (value, fallback = 0) => {
@@ -1028,10 +618,423 @@
 
     const sanitize = (str) => {
       if (!str) return '';
-      return String(str).replace(/[<>]/g, ''); // Basic tag stripping
+      // Escape all HTML special characters to prevent XSS
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
     };
 
+    // Validate color strings to prevent CSS injection
+    const isValidColor = (color) => {
+      if (!color) return true;
+      // Allow hex colors, rgb/rgba, hsl/hsla, and named colors
+      const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(\d{1,3},\s*\d{1,3},\s*\d{1,3}\)|rgba\(\d{1,3},\s*\d{1,3},\s*\d{1,3},\s*[\d.]+\)|hsl\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%\)|hsla\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%,\s*[\d.]+\)|[a-zA-Z]+)$/;
+      return colorRegex.test(color.trim());
+    };
+
+    // Sanitize card data to prevent injection attacks
+    const sanitizeCardData = (data) => {
+      if (!data || typeof data !== 'object') return {};
+      const sanitized = {};
+      const colorFields = ['borderColor', 'backgroundColor', 'abilityBackground', 'textColor', 'nameColor', 'hpColor', 'typeColor', 'descColor', 'statsColor', 'authorColor', 'primaryColor', 'secondaryColor', 'cardInnerBackground', 'cardInnerSecondaryBackground', 'textureColor', 'moveNameColor', 'moveDescColor'];
+      const textFields = ['name', 'description', 'author'];
+      const numberFields = ['hp', 'retreatCost', 'nameSize', 'hpSize', 'stageSize', 'descSize', 'statsSize', 'authorSize', 'moveNameSize', 'moveDescSize'];
+
+      for (const [key, value] of Object.entries(data)) {
+        if (colorFields.includes(key)) {
+          sanitized[key] = isValidColor(value) ? value : '';
+        } else if (textFields.includes(key)) {
+          sanitized[key] = sanitize(String(value || '').substring(0, 200));
+        } else if (numberFields.includes(key)) {
+          sanitized[key] = typeof value === 'number' ? Math.min(Math.max(value, 0), 9999) : 0;
+        } else if (typeof value === 'boolean') {
+          sanitized[key] = !!value;
+        } else if (typeof value === 'string') {
+          sanitized[key] = String(value).substring(0, 500);
+        } else {
+          sanitized[key] = value;
+        }
+      }
+      return sanitized;
+    };
+
+    // --- Deck Builder Modal ---
+    const PAPER_FORMATS = [
+      { id: 'a4', label: 'A4', width: 794, height: 1123 },
+      { id: 'a3', label: 'A3', width: 1123, height: 1587 }
+    ];
+
+    const DeckBuilderModal = ({ isOpen, onClose, t, savedCards, notify }) => {
+      const [paperFormat, setPaperFormat] = useState('a4');
+      const [cardCount, setCardCount] = useState(9);
+      const [cardWidthCm, setCardWidthCm] = useState(6.35);
+      const [showCustomSettings, setShowCustomSettings] = useState(false);
+
+      const paper = PAPER_FORMATS.find(p => p.id === paperFormat) || PAPER_FORMATS[0];
+      const padding = 15; // Optimized: reduced from 30px for more cards
+      const gap = 6; // Optimized: reduced from 12px for more cards
+      const cardRatio = 448 / 320;
+
+      // Convert cm to px (96dpi = 37.795px per cm)
+      const pxPerCm = 37.795;
+
+      // Calculate max card size that fits on paper (at least 1 card must fit)
+      const maxCardWidthFromWidth = (paper.width - padding * 2) / pxPerCm;
+      const maxCardWidthFromHeight = (paper.height - padding * 2) / cardRatio / pxPerCm;
+      const maxCardWidthCm = Math.min(maxCardWidthFromWidth, maxCardWidthFromHeight);
+
+      // Ensure cardWidthCm doesn't exceed max
+      const effectiveCardWidthCm = Math.min(cardWidthCm, maxCardWidthCm);
+      const cardWidthPx = effectiveCardWidthCm * pxPerCm;
+      const cardHeightPx = cardWidthPx * cardRatio;
+
+      // Function to calculate max cards for a given card size (in cm)
+      const getMaxCardsForSize = useCallback((widthCm, formatId = paperFormat) => {
+        const targetPaper = PAPER_FORMATS.find(p => p.id === formatId) || PAPER_FORMATS[0];
+        const clampedWidth = Math.min(widthCm, Math.min((targetPaper.width - padding * 2) / pxPerCm, (targetPaper.height - padding * 2) / cardRatio / pxPerCm));
+        const widthPx = clampedWidth * pxPerCm;
+        const heightPx = widthPx * cardRatio;
+        const cols = Math.floor((targetPaper.width - padding * 2 + gap) / (widthPx + gap));
+        const rows = Math.floor((targetPaper.height - padding * 2 + gap) / (heightPx + gap));
+        return Math.max(1, cols * rows);
+      }, [paperFormat]);
+
+      // Calculate how many cards fit with the requested size
+      const maxCols = Math.floor((paper.width - padding * 2 + gap) / (cardWidthPx + gap));
+      const maxRows = Math.floor((paper.height - padding * 2 + gap) / (cardHeightPx + gap));
+      const maxCards = maxCols * maxRows;
+
+      // Limit card count to what fits
+      const effectiveCardCount = Math.min(cardCount, maxCards);
+
+      // Calculate best grid layout for the effective card count
+      const calculateLayout = (count, maxC, maxR) => {
+        let bestCols = 1, bestRows = count;
+        let bestWaste = count;
+
+        for (let c = 1; c <= Math.min(count, maxC); c++) {
+          const r = Math.ceil(count / c);
+          if (r <= maxR) {
+            const waste = (c * r) - count;
+            if (waste < bestWaste || (waste === bestWaste && Math.abs(c - r) < Math.abs(bestCols - bestRows))) {
+              bestWaste = waste;
+              bestCols = c;
+              bestRows = r;
+            }
+          }
+        }
+        return { cols: bestCols, rows: bestRows };
+      };
+
+      const layout = calculateLayout(effectiveCardCount, maxCols, maxRows);
+      const { cols, rows } = layout;
+
+      const [grid, setGrid] = useState([]);
+      const gridRef = useRef(null);
+
+      useEffect(() => {
+        setGrid(prev => {
+          const newGrid = Array(effectiveCardCount).fill(null);
+          prev.forEach((card, i) => {
+            if (i < effectiveCardCount) newGrid[i] = card;
+          });
+          return newGrid;
+        });
+      }, [effectiveCardCount]);
+
+      const addToGrid = useCallback((card) => {
+        setGrid(prev => {
+          const idx = prev.findIndex(item => item === null);
+          if (idx === -1) {
+            notify(t.deckBuilder?.full || "Grid is full!", 'error');
+            return prev;
+          }
+          const newGrid = [...prev];
+          newGrid[idx] = card;
+          return newGrid;
+        });
+      }, [notify, t]);
+
+      const removeFromGrid = useCallback((index) => {
+        setGrid(prev => {
+          const newGrid = [...prev];
+          newGrid[index] = null;
+          return newGrid;
+        });
+      }, []);
+
+      const clearGrid = useCallback(() => {
+        setGrid(Array(cardCount).fill(null));
+      }, [cardCount]);
+
+      const handleExport = async () => {
+        if (!gridRef.current) return;
+        try {
+          notify(t.deckBuilder?.exporting || "Preparing sheet...", 'info');
+          // Professional quality: scale 6 = ~300 DPI for print
+          const canvas = await html2canvas(gridRef.current, {
+            scale: 6,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            allowTaint: false
+          });
+          const link = document.createElement('a');
+          link.download = `deck_sheet_${paperFormat.toUpperCase()}_${effectiveCardCount}cards_${Date.now()}.png`;
+          // Use PNG for lossless quality
+          link.href = canvas.toDataURL('image/png', 1.0);
+          link.click();
+          notify(t.deckBuilder?.success || "Sheet downloaded!", 'success');
+        } catch (err) {
+          console.error(err);
+          notify(t.deckBuilder?.error || "Export failed", 'error');
+        }
+      };
+
+      const handleExportPDF = async () => {
+        if (!gridRef.current) return;
+        try {
+          notify(t.deckBuilder?.exporting || "Preparing PDF...", 'info');
+
+          // Professional quality: scale 6 = ~300 DPI for print
+          const canvas = await html2canvas(gridRef.current, {
+            scale: 6,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            allowTaint: false
+          });
+
+          // Get jsPDF from global scope
+          const { jsPDF } = window.jspdf;
+
+          // Create PDF with correct paper format and orientation
+          const pdfFormat = paperFormat === 'a3' ? 'a3' : 'a4';
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: pdfFormat,
+            compress: false // No compression for max quality
+          });
+
+          // Get PDF page dimensions in mm
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          // Use PNG for lossless quality in PDF
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'NONE');
+
+          // Save the PDF
+          pdf.save(`deck_sheet_${pdfFormat.toUpperCase()}_${effectiveCardCount}cards_${Date.now()}.pdf`);
+
+          notify(t.deckBuilder?.successPdf || "PDF downloaded!", 'success');
+        } catch (err) {
+          console.error(err);
+          notify(t.deckBuilder?.error || "Export failed", 'error');
+        }
+      };
+
+      if (!isOpen) return null;
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content deck-modal" onClick={e => e.stopPropagation()} style={{ width: '95vw', height: '90vh', maxWidth: '1400px', display: 'flex', flexDirection: 'column', padding: 0, borderRadius: '16px', overflow: 'hidden', background: '#1e1e2f' }}>
+            <div className="modal-header" style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>🖨️</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>{t.deckBuilder?.title || "Deck Builder"}</h3>
+                  <span style={{ fontSize: '12px', opacity: 0.6 }}>{paper.label} • {cardCount} {t.deckBuilder?.cards || "cards"} ({cols}×{rows})</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button className="secondary-btn" onClick={clearGrid}>🗑️ {t.deckBuilder?.clear || "Clear"}</button>
+                <button className="secondary-btn" onClick={handleExport} title="PNG">🖼️ PNG</button>
+                <button className="primary-btn" onClick={handleExportPDF} title="PDF">📄 PDF</button>
+                <button className="secondary-btn" onClick={onClose} style={{ padding: '8px 12px' }}>✕</button>
+              </div>
+            </div>
+
+            <div className="modal-body" style={{ flex: 1, display: 'flex', overflow: 'hidden', padding: 0 }}>
+              <div className="deck-library" style={{ width: '280px', background: 'rgba(0,0,0,0.2)', padding: '20px', overflowY: 'auto', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+                {/* Settings - Simplified with Presets */}
+                <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span>⚙️</span>
+                    <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>{t.deckBuilder?.settings || "Settings"}</h4>
+                  </div>
+
+                  {/* Paper Format */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#a0a0c0', marginBottom: '4px', textTransform: 'uppercase' }}>{t.deckBuilder?.paperFormat || "Paper"}</label>
+                    <select value={paperFormat} onChange={e => setPaperFormat(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer' }}>
+                      {PAPER_FORMATS.map(fmt => <option key={fmt.id} value={fmt.id} style={{ background: '#1a1a2e', color: '#fff' }}>{fmt.label}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Quick Presets - Grid Layout */}
+                  <label style={{ display: 'block', fontSize: '11px', color: '#a0a0c0', marginBottom: '8px', textTransform: 'uppercase' }}>{t.deckBuilder?.presets || "Quick Presets"}</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
+                    <button
+                      onClick={() => { const max = getMaxCardsForSize(6.35); setCardWidthCm(6.35); setCardCount(max); }}
+                      style={{ padding: '10px 8px', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none', color: '#fff', fontSize: '11px', fontWeight: '600', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                    >
+                      <span style={{ fontSize: '16px' }}>🎴</span>
+                      <span>{t.deckBuilder?.presetStandard || "Standard"}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.7 }}>{getMaxCardsForSize(6.35)} {t.deckBuilder?.cards || "cards"}</span>
+                    </button>
+                    <button
+                      onClick={() => { const max = getMaxCardsForSize(5); setCardWidthCm(5); setCardCount(max); }}
+                      style={{ padding: '10px 8px', borderRadius: '8px', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', color: '#fff', fontSize: '11px', fontWeight: '600', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                    >
+                      <span style={{ fontSize: '16px' }}>📦</span>
+                      <span>{t.deckBuilder?.presetCompact || "Compact"}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.7 }}>{getMaxCardsForSize(5)} {t.deckBuilder?.cards || "cards"}</span>
+                    </button>
+                    <button
+                      onClick={() => { const max = getMaxCardsForSize(4); setCardWidthCm(4); setCardCount(max); }}
+                      style={{ padding: '10px 8px', borderRadius: '8px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', color: '#fff', fontSize: '11px', fontWeight: '600', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                    >
+                      <span style={{ fontSize: '16px' }}>🃏</span>
+                      <span>{t.deckBuilder?.presetMini || "Mini"}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.7 }}>{getMaxCardsForSize(4)} {t.deckBuilder?.cards || "cards"}</span>
+                    </button>
+                    <button
+                      onClick={() => { const maxSize = Math.floor(maxCardWidthCm * 10) / 10; setCardWidthCm(maxSize); setCardCount(1); }}
+                      style={{ padding: '10px 8px', borderRadius: '8px', background: 'linear-gradient(135deg, #ec4899, #be185d)', border: 'none', color: '#fff', fontSize: '11px', fontWeight: '600', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                    >
+                      <span style={{ fontSize: '16px' }}>🖼️</span>
+                      <span>{t.deckBuilder?.presetMax || "Max"}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.7 }}>1 {t.deckBuilder?.card || "card"} ({maxCardWidthCm.toFixed(1)} cm)</span>
+                    </button>
+                  </div>
+
+                  {/* Current Configuration Display */}
+                  <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '10px', borderRadius: '8px', marginBottom: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                      <span style={{ color: '#a0a0c0' }}>{t.deckBuilder?.currentLayout || "Current"}:</span>
+                      <span style={{ fontWeight: '600', color: '#3b82f6' }}>{cols}×{rows} ({effectiveCardCount} {t.deckBuilder?.cards || "cards"})</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span style={{ color: '#a0a0c0' }}>{t.deckBuilder?.cardSize || "Card Size"}:</span>
+                      <span style={{ fontWeight: '600', color: '#3b82f6' }}>{effectiveCardWidthCm.toFixed(1)} cm (max: {maxCardWidthCm.toFixed(1)})</span>
+                    </div>
+                  </div>
+
+                  {/* Custom Settings Toggle */}
+                  <button
+                    onClick={() => setShowCustomSettings && setShowCustomSettings(prev => !prev)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'transparent', border: '1px dashed rgba(255,255,255,0.2)', color: '#a0a0c0', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    <span>🔧</span>
+                    <span>{t.deckBuilder?.customize || "Customize"}</span>
+                    <span style={{ fontSize: '10px' }}>{showCustomSettings ? '▲' : '▼'}</span>
+                  </button>
+
+                  {/* Custom Settings (Hidden by Default) */}
+                  {showCustomSettings && (
+                    <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#a0a0c0', marginBottom: '4px' }}>
+                          <span>{t.deckBuilder?.cardCount || "Cards"}</span>
+                          <span style={{ color: '#fff' }}>{cardCount}</span>
+                        </label>
+                        <input type="range" min={1} max={64} value={cardCount} onChange={e => setCardCount(parseInt(e.target.value))} style={{ width: '100%' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#a0a0c0', marginBottom: '4px' }}>
+                          <span>{t.deckBuilder?.cardSize || "Card Size"}</span>
+                          <span style={{ color: '#fff' }}>{effectiveCardWidthCm.toFixed(1)} cm</span>
+                        </label>
+                        <input type="range" min={3} max={Math.floor(maxCardWidthCm * 10) / 10} step={0.1} value={cardWidthCm} onChange={e => setCardWidthCm(parseFloat(e.target.value))} style={{ width: '100%' }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Library */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <span style={{ fontSize: '18px' }}>📚</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '600' }}>{t.deckBuilder?.library || "Library"}</h4>
+                  <span style={{ background: '#3b82f6', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '600' }}>{savedCards.length}</span>
+                </div>
+                {savedCards.length === 0 ? (
+                  <div style={{ textAlign: 'center', opacity: 0.5, marginTop: '40px', padding: '20px' }}>
+                    <span style={{ fontSize: '36px', display: 'block', marginBottom: '12px', opacity: 0.6 }}>📭</span>
+                    <span style={{ fontSize: '13px' }}>{t.prompts?.noSaves || "No cards found"}</span>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {savedCards.map(card => (
+                      <div key={card.id} className="library-card" style={{ borderRadius: '8px', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', padding: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontSize: '11px', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', fontWeight: '600', color: '#a0a0c0' }}>{card.name}</div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <div onClick={() => addToGrid({ ...card, usedSide: 'front', displayImage: card.thumbnail || card.image })} style={{ flex: 1, cursor: 'pointer', position: 'relative', borderRadius: '6px', overflow: 'hidden', border: '2px solid rgba(59, 130, 246, 0.3)' }} onMouseOver={e => e.currentTarget.style.borderColor = '#3b82f6'} onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'}>
+                            <img src={card.thumbnail || card.image} alt={card.name + ' front'} style={{ width: '100%', borderRadius: '4px', aspectRatio: '320/448', objectFit: 'cover' }} />
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(59, 130, 246, 0.9)', color: 'white', fontSize: '9px', fontWeight: '600', textAlign: 'center', padding: '2px 0' }}>🎴 {t.download?.frontSide || 'Front'}</div>
+                          </div>
+                          <div onClick={() => addToGrid({ ...card, usedSide: 'back', displayImage: card.thumbnailBack || card.thumbnail })} style={{ flex: 1, cursor: 'pointer', position: 'relative', borderRadius: '6px', overflow: 'hidden', border: '2px solid rgba(139, 92, 246, 0.3)' }} onMouseOver={e => e.currentTarget.style.borderColor = '#8b5cf6'} onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)'}>
+                            <img src={card.thumbnailBack || card.thumbnail} alt={card.name + ' back'} style={{ width: '100%', borderRadius: '4px', aspectRatio: '320/448', objectFit: 'cover', background: '#1a1a2e' }} />
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(139, 92, 246, 0.9)', color: 'white', fontSize: '9px', fontWeight: '600', textAlign: 'center', padding: '2px 0' }}>🔙 {t.download?.backSide || 'Back'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="deck-workspace" style={{ flex: 1, background: '#2a2a3e', overflow: 'auto', padding: '30px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+                <div ref={gridRef} className="a4-sheet" style={{
+                  width: `${paper.width}px`,
+                  minHeight: `${paper.height}px`,
+                  background: '#ffffff',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+                  padding: `${padding}px`,
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignContent: 'flex-start',
+                  gap: `${gap}px`,
+                  borderRadius: '4px'
+                }}>
+                  {grid.map((card, i) => (
+                    <div key={i} className="sheet-slot" onClick={() => card && removeFromGrid(i)} title={card ? (t.deckBuilder?.clickToRemove || "Click to remove") : ''}
+                      style={{
+                        width: `${cardWidthPx}px`,
+                        height: `${cardHeightPx}px`,
+                        border: card ? '1px solid #e0e0e0' : '2px dashed #ccc',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: card ? '#fff' : '#f5f5f5',
+                        cursor: card ? 'pointer' : 'default',
+                        flexShrink: 0
+                      }}>
+                      {card ? <img src={card.displayImage || card.image || card.thumbnail} alt={card.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ color: '#bbb', fontSize: '24px', fontWeight: 'bold' }}>{i + 1}</span>}
+                      {card && <div className="slot-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(239, 68, 68, 0.85)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', borderRadius: '6px' }}>✕</div>}
+                      <style>{`.sheet-slot:hover .slot-overlay { opacity: 1; }`}</style>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+
     // --- Save/Load Components ---
+
+    // --- Autosave Effect (Debounced) ---
     const SaveModal = ({ isOpen, onClose, onSave, defaultName, t }) => {
       const [name, setName] = useState(defaultName);
       useEffect(() => setName(defaultName), [defaultName]);
@@ -1062,26 +1065,6 @@
             <div className="modal-footer">
               <button className="secondary-button" onClick={onClose}>{t.common.cancel}</button>
               <button className="primary-button" onClick={() => onSave(name)}>{t.buttons.save}</button>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, t }) => {
-      if (!isOpen) return null;
-      return (
-        <div className="modal-overlay" onClick={onClose} style={{ zIndex: 11000 }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
-            <div className="modal-header">
-              <h3 style={{ color: '#f44336' }}>⚠️ {title}</h3>
-            </div>
-            <div className="modal-body">
-              <p>{message}</p>
-            </div>
-            <div className="modal-footer">
-              <button className="secondary-button" onClick={onClose}>{t.common.cancel}</button>
-              <button className="primary-button" style={{ background: '#f44336' }} onClick={onConfirm}>{t.buttons.remove || 'Confirm'}</button>
             </div>
           </div>
         </div>
@@ -1138,6 +1121,212 @@
                   🗑️ {t.buttons.deleteAll || 'Delete All'}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const JsonModal = ({ isOpen, onClose, onImport, onExport, t }) => {
+      const fileInputRef = useRef(null);
+      const [error, setError] = useState(null);
+
+      const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const json = JSON.parse(event.target.result);
+            onImport(json);
+            setError(null);
+            onClose();
+          } catch (err) {
+            setError(t.json.errorImport);
+            console.error("JSON Import Error:", err);
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset
+      };
+
+      if (!isOpen) return null;
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>⚙️ {t.json.modalTitle}</h3>
+            </div>
+
+            <div className="modal-body">
+              <p style={{ opacity: 0.8, marginBottom: '20px' }}>{t.json.help}</p>
+
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '200px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', textAlign: 'center' }}>
+                  <h4 style={{ margin: '0 0 10px 0' }}>{t.json.exportTitle}</h4>
+                  <button className="primary-button" style={{ width: '100%' }} onClick={onExport}>
+                    {t.json.exportBtn}
+                  </button>
+                </div>
+
+                <div style={{ flex: 1, minWidth: '200px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', textAlign: 'center' }}>
+                  <h4 style={{ margin: '0 0 10px 0' }}>{t.json.importTitle}</h4>
+                  {error && <div style={{ color: '#ff6b6b', marginBottom: '10px' }}>{error}</div>}
+                  <button className="secondary-button" style={{ width: '100%' }} onClick={() => fileInputRef.current?.click()}>
+                    {t.json.importBtn}
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".json"
+                    style={{ display: 'none' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer" style={{ marginTop: '20px' }}>
+              <button className="secondary-button" onClick={onClose}>{t.common.close}</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+    const DownloadModal = ({ isOpen, onClose, t, cardRef, cardName, isGifSupported, isFlipped }) => {
+      const [gifStatus, setGifStatus] = useState(null);
+
+      if (!isOpen) return null;
+
+      // Get the correct element to capture based on flip state
+      const getTargetElement = () => {
+        if (!cardRef.current) return null;
+        return isFlipped
+          ? cardRef.current.querySelector('.game-card-back')
+          : cardRef.current.querySelector('.game-card');
+      };
+
+      const handleGifDownload = async () => {
+        if (gifStatus) return;
+        try {
+          setGifStatus(t.download.capturing);
+          await downloadAsGIF(
+            getTargetElement(),
+            cardName + (isFlipped ? '_back' : ''),
+            3000,
+            10,
+            t,
+            (text) => setGifStatus(text)
+          );
+          onClose();
+          setGifStatus(null);
+        } catch (err) {
+          setGifStatus(null);
+        }
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>{t.download.title}</h3>
+            </div>
+            <div className="modal-body">
+              {/* Indicateur clair de la face sélectionnée */}
+              <div style={{
+                background: isFlipped ? 'rgba(139, 92, 246, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                border: `1px solid ${isFlipped ? 'rgba(139, 92, 246, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
+                borderRadius: '10px',
+                padding: '12px 16px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '24px' }}>{isFlipped ? '🔙' : '🎴'}</span>
+                <div>
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: isFlipped ? '#a78bfa' : '#60a5fa' }}>
+                    {isFlipped ? (t.download?.backSide || 'Back Side') : (t.download?.frontSide || 'Front Side')}
+                  </div>
+                  <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                    {isFlipped
+                      ? (t.download?.backHint || 'Flip the card to download the front side')
+                      : (t.download?.frontHint || 'Flip the card to download the back side')
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div className="download-options-grid">
+                <button
+                  className="download-option-card"
+                  onClick={() => { downloadAsPNG(getTargetElement(), cardName + (isFlipped ? '_back' : '')); onClose(); }}
+                >
+                  <div className="option-icon">🖼️</div>
+                  <div className="option-info">
+                    <span className="option-title">PNG</span>
+                    <span className="option-desc">{t.download.pngDesc}</span>
+                  </div>
+                </button>
+                <button
+                  className="download-option-card"
+                  onClick={() => { downloadAsJPG(getTargetElement(), cardName + (isFlipped ? '_back' : '')); onClose(); }}
+                >
+                  <div className="option-icon">📷</div>
+                  <div className="option-info">
+                    <span className="option-title">JPG</span>
+                    <span className="option-desc">{t.download.jpgDesc}</span>
+                  </div>
+                </button>
+                <button
+                  className="download-option-card"
+                  onClick={() => { downloadAsWebP(getTargetElement(), cardName + (isFlipped ? '_back' : '')); onClose(); }}
+                >
+                  <div className="option-icon">🌐</div>
+                  <div className="option-info">
+                    <span className="option-title">WebP</span>
+                    <span className="option-desc">{t.download.webpDesc}</span>
+                  </div>
+                </button>
+                {isGifSupported && (
+                  <button
+                    className="download-option-card"
+                    onClick={handleGifDownload}
+                    disabled={!!gifStatus}
+                  >
+                    <div className="option-icon">🎬</div>
+                    <div className="option-info">
+                      <span className="option-title">GIF</span>
+                      <span className="option-desc">{gifStatus || t.download.gifDesc}</span>
+                    </div>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer" style={{ marginTop: '20px' }}>
+              <button className="secondary-button" onClick={onClose}>{t.common.close}</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, t }) => {
+      if (!isOpen) return null;
+      return (
+        <div className="modal-overlay" onClick={onClose} style={{ zIndex: 11000 }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h3 style={{ color: '#f44336' }}>⚠️ {title}</h3>
+            </div>
+            <div className="modal-body">
+              <p>{message}</p>
+            </div>
+            <div className="modal-footer">
+              <button className="secondary-button" onClick={onClose}>{t.common.cancel}</button>
+              <button className="primary-button" style={{ background: '#f44336' }} onClick={onConfirm}>{t.buttons.remove || 'Confirm'}</button>
             </div>
           </div>
         </div>
@@ -1294,13 +1483,14 @@
         >
           ✕
         </button>)}
-      </div><div className="attack-grid"><InputGroup
-        id={`attack-${attack.id}-name`}
-        label={t.labels.abilityName}
-        value={attack.name}
-        onChange={(v) => handleChange('name', v)}
-        maxLength={CARD_LIMITS.NAME_MAX_LENGTH}
-      /><InputGroup
+      </div>
+        <div className="attack-grid"><InputGroup
+          id={`attack-${attack.id}-name`}
+          label={t.labels.abilityName}
+          value={attack.name}
+          onChange={(v) => handleChange('name', v)}
+          maxLength={CARD_LIMITS.NAME_MAX_LENGTH}
+        /><InputGroup
             id={`attack-${attack.id}-damage`}
             label={t.labels.damage}
             type="number"
@@ -1387,12 +1577,21 @@
       const containerRef = useRef(null);
       const [isDragging, setIsDragging] = useState(false);
       const [isPanning, setIsPanning] = useState(false);
-      const panStart = useRef({ x: 0, y: 0 });
-      const offsetStart = useRef({ x: 0, y: 0 });
+      const dragStart = useRef({ x: 0, y: 0 });
+      const uniqueId = useMemo(() => `zoom-${Math.random().toString(36).substr(2, 9)}`, []);
+
+      const handleFileChange = useCallback((e) => {
+        const file = e.target.files?.[0];
+        if (file) onUpload(file);
+        e.target.value = ''
+      }, [onUpload]);
+      const handleClick = useCallback(() => {
+        if (!image) fileInputRef.current?.click()
+      }, [image]);
       const handleDragOver = useCallback((e) => {
         e.preventDefault();
-        if (!isPanning) setIsDragging(true)
-      }, [isPanning]);
+        setIsDragging(true)
+      }, []);
       const handleDragLeave = useCallback((e) => {
         e.preventDefault();
         setIsDragging(false)
@@ -1400,53 +1599,41 @@
       const handleDrop = useCallback((e) => {
         e.preventDefault();
         setIsDragging(false);
-        const file = e.dataTransfer.files[0];
+        const file = e.dataTransfer.files?.[0];
         if (file) onUpload(file)
-      }, [onUpload]);
-      const handleClick = useCallback(() => {
-        if (!image) fileInputRef.current?.click()
-      }, [image]);
-      const handleFileChange = useCallback((e) => {
-        const file = e.target.files?.[0];
-        if (file) onUpload(file);
-        e.target.value = ''
       }, [onUpload]);
       const handleZoomChange = useCallback((value) => {
         const zoom = parseFloatSafe(value, 1);
-        const clampedZoom = clamp(zoom, CARD_LIMITS.ZOOM_MIN, CARD_LIMITS.ZOOM_MAX);
+        const clampedZoom = clamp(zoom, 1, 3);
+        const maxOffset = clampedZoom * 100;
         onSettingsChange({
-          ...settings, zoom: clampedZoom, offsetX: clamp(settings.offsetX, -(clampedZoom - 1) * 50 - 30, (clampedZoom - 1) * 50 + 30), offsetY: clamp(settings.offsetY, -(clampedZoom - 1) * 50 - 30, (clampedZoom - 1) * 50 + 30)
+          ...settings, zoom: clampedZoom, offsetX: clamp(settings.offsetX, -maxOffset, maxOffset), offsetY: clamp(settings.offsetY, -maxOffset, maxOffset)
         })
       }, [settings, onSettingsChange]);
       const handlePanStart = useCallback((e) => {
-        if (!image) return;
         e.preventDefault();
         setIsPanning(true);
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        panStart.current = { x: clientX, y: clientY };
-        offsetStart.current = { x: settings.offsetX, y: settings.offsetY }
-      }, [image, settings.offsetX, settings.offsetY]);
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        dragStart.current = { x: clientX - settings.offsetX, y: clientY - settings.offsetY }
+      }, [settings]);
       const handlePanMove = useCallback((e) => {
         if (!isPanning) return;
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const deltaX = clientX - panStart.current.x;
-        const deltaY = clientY - panStart.current.y;
-        const maxOffset = (settings.zoom - 1) * 50 + 30;
-        const newOffsetX = clamp(offsetStart.current.x + deltaX, -maxOffset, maxOffset);
-        const newOffsetY = clamp(offsetStart.current.y + deltaY, -maxOffset, maxOffset);
-        onSettingsChange({
-          zoom: settings.zoom, offsetX: newOffsetX, offsetY: newOffsetY
-        })
-      }, [isPanning, settings.zoom, onSettingsChange]);
+        e.preventDefault();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        const newX = clientX - dragStart.current.x;
+        const newY = clientY - dragStart.current.y;
+        const maxOffset = settings.zoom * 100;
+        onSettingsChange({ ...settings, offsetX: clamp(newX, -maxOffset, maxOffset), offsetY: clamp(newY, -maxOffset, maxOffset) })
+      }, [isPanning, settings, onSettingsChange]);
       const handlePanEnd = useCallback(() => {
         setIsPanning(false)
       }, []);
       const handleReset = useCallback(() => {
         onSettingsChange(INITIAL_IMAGE_SETTINGS)
       }, [onSettingsChange]);
-      return (<div className="image-editor"><div className="image-editor-header">
+      return (<div className="image-editor-container"><div className="image-editor-header">
         {image && (<div className="image-actions"><button type="button" onClick={() => fileInputRef.current?.click()} className="small-btn">
           {t.buttons.change}
         </button><button type="button" onClick={handleReset} className="small-btn">
@@ -1490,11 +1677,11 @@
             {isLoading ? t.imageEditor.loading : error ? error : t.imageEditor.dropHint}
           </div><div className="upload-hint">{t.imageEditor.formats}</div></div>)}
         </div>
-        {image && (<div className="image-controls"><div className="zoom-control"><label htmlFor="zoom-slider">{t.labels.zoom}:{(settings.zoom * 100).toFixed(0)}%</label><input
-          id="zoom-slider"
+        {image && (<div className="image-controls"><div className="zoom-control"><label htmlFor={uniqueId}>{t.labels.zoom}:{(settings.zoom * 100).toFixed(0)}%</label><input
+          id={uniqueId}
           type="range"
-          min={CARD_LIMITS.ZOOM_MIN}
-          max={CARD_LIMITS.ZOOM_MAX}
+          min={1}
+          max={3}
           step={0.05}
           value={settings.zoom}
           onChange={(e) => handleZoomChange(e.target.value)}
@@ -1504,7 +1691,7 @@
     ImageEditor.displayName = 'ImageEditor';
 
     const Card = React.memo(({
-      cardData, attacks, image, imageSettings, mousePos, isHovering, cardRef, onMouseMove, onMouseEnter, onMouseLeave, autoRotate, t
+      cardData, attacks, image, imageSettings, cardBackSettings = INITIAL_IMAGE_SETTINGS, mousePos, isHovering, cardRef, onMouseMove, onMouseEnter, onMouseLeave, autoRotate, isFlipped, t
     }) => {
       const typeData = ELEMENT_TYPES[cardData.type] || ELEMENT_TYPES.Neutral;
       const weaknessIcon = ELEMENT_TYPES[cardData.weakness]?.icon || cardData.weakness || '❓';
@@ -1516,13 +1703,32 @@
       // Use custom icon if available, otherwise fallback to type icon
       const displayIcon = cardData.customIcon || typeData.icon;
 
-      const cardStyle = useMemo(() => {
+      const { containerStyle, flipperStyle } = useMemo(() => {
         const capturing = document.body.classList.contains('is-capturing');
+        // Base rotation from mouse position
+        const rotY = (mousePos.x - 0.5) * 15;
+        const rotX = (0.5 - mousePos.y) * 15;
+
+        // Container handles Tilt (auto or manual)
+        const containerTransform = (isHovering && !capturing)
+          ? `perspective(1000px) rotateY(${rotY}deg) rotateX(${rotX}deg) scale(1.02)`
+          : `perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)`;
+
         return {
-          transform: (isHovering && !capturing) ? `perspective(1000px) rotateY(${(mousePos.x - 0.5) * 15}deg) rotateX(${(0.5 - mousePos.y) * 15}deg) scale(1.02)` : 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)',
-          transition: autoRotate ? 'none' : 'transform 0.12s ease-out'
+          containerStyle: {
+            transform: containerTransform,
+            transition: autoRotate ? 'none' : 'transform 0.2s ease-out'
+          },
+          flipperStyle: {
+            transform: `rotateY(${isFlipped ? 180 : 0}deg)`,
+            transition: 'transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            transformStyle: 'preserve-3d',
+            width: '100%',
+            height: '100%',
+            position: 'relative'
+          }
         }
-      }, [isHovering, mousePos.x, mousePos.y, autoRotate]);
+      }, [isHovering, mousePos.x, mousePos.y, autoRotate, isFlipped]);
 
 
 
@@ -1563,91 +1769,176 @@
       return (<div
         ref={cardRef}
         className="card-container"
-        style={cardStyle}
+        style={containerStyle}
         onMouseMove={onMouseMove}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-      ><div
-        className="game-card"
-        style={{
-          background: cardGradient, borderColor: borderColor, fontFamily: fontData.family,
-        }}
       >
-          {/* Texture Layer */}
-          {cardData.texture && cardData.texture !== 'none' && (
-            <div className="texture-layer" style={{
-              WebkitMaskImage: CARD_TEXTURES[cardData.texture],
-              maskImage: CARD_TEXTURES[cardData.texture],
-              backgroundColor: cardData.textureColor || '#000000'
-            }}></div>
-          )}
+        <div className="card-flipper" style={flipperStyle}>
+          <div
+            className="game-card"
+            style={{
+              background: cardGradient, borderColor: borderColor, fontFamily: fontData.family,
+            }}
+          >
+            {/* Texture Layer */}
+            {cardData.texture && cardData.texture !== 'none' && (
+              <div className="texture-layer" style={{
+                WebkitMaskImage: CARD_TEXTURES[cardData.texture],
+                maskImage: CARD_TEXTURES[cardData.texture],
+                backgroundColor: cardData.textureColor || '#000000'
+              }}></div>
+            )}
 
-          {/* Inner card frame */}
-          <div className="card-inner" style={{
-            color: textColor,
-            backgroundImage: cardData.cardInnerColorMode === 'gradient'
-              ? `linear-gradient(180deg, ${cardData.cardInnerBackground}, ${cardData.cardInnerSecondaryBackground})`
-              : 'none',
-            backgroundColor: cardData.cardInnerColorMode === 'gradient' ? 'transparent' : cardData.cardInnerBackground
+            {/* Inner card frame */}
+            <div className="card-inner" style={{
+              color: textColor,
+              backgroundImage: cardData.cardInnerColorMode === 'gradient'
+                ? `linear-gradient(180deg, ${cardData.cardInnerBackground}, ${cardData.cardInnerSecondaryBackground})`
+                : 'none',
+              backgroundColor: cardData.cardInnerColorMode === 'gradient' ? 'transparent' : cardData.cardInnerBackground
+            }}>
+              {/* Header */}
+              <div className="card-header"><div className="card-header-left"><span className="stage-badge" style={{ background: cardData.primaryColor || typeData.primary, color: cardData.typeColor || 'inherit', fontSize: `${cardData.stageSize}px`, fontWeight: cardData.stageWeight }}>
+                {t.stages[STAGES.indexOf(cardData.stage)] || cardData.stage}
+              </span><span className="creature-name" style={{ color: cardData.nameColor || 'inherit', fontSize: `${cardData.nameSize}px`, fontWeight: cardData.nameWeight }}>{cardData.name}</span></div>
+                {cardData.showHP && (<div className="card-header-right"><span className="hp-value" style={{ color: cardData.hpColor || 'inherit', fontSize: `${cardData.hpSize}px`, fontWeight: cardData.hpWeight }}>{t.card.hp} {cardData.hp}</span><span className="type-icon">{displayIcon}</span></div>)}
+              </div>
+              {/* Image */}
+              <div className="card-image" style={imageStyle}>
+                {!image && (<span className="placeholder-icon">{displayIcon}</span>)}
+              </div>
+              {/* Description bar */}
+              {cardData.showDescription && cardData.description && (<div className="card-description" style={{ color: cardData.descColor || 'inherit', fontSize: `${cardData.descSize}px`, fontWeight: cardData.descWeight, lineHeight: cardData.descHeight || 1.3 }}>{cardData.description}</div>)}
+              {/* Attacks */}
+              <div className="attacks-container">
+                {attacks.map((attack) => (
+                  <div key={attack.id} className="attack-card" style={{
+                    backgroundImage: attack.colorMode === 'gradient'
+                      ? `linear-gradient(180deg, ${attack.background}, ${attack.secondaryBackground})`
+                      : 'none',
+                    backgroundColor: attack.colorMode === 'gradient' ? 'transparent' : (attack.background || cardData.abilityBackground),
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'top center',
+                    backgroundSize: '100% 102%'
+                  }}><div className="attack-header"><div className="attack-cost">
+                    {[...Array(Math.max(0, Math.min(10, attack.cost)))].map((_, i) => (<span key={i} className="energy-icon">{displayIcon}</span>))}
+                  </div><span className="attack-name" style={{ color: cardData.moveNameColor || cardData.descColor || 'inherit', fontSize: `${cardData.moveNameSize}px`, fontWeight: cardData.moveNameWeight }}>{attack.name}</span>{attack.showDamage !== false && <span className="attack-damage" style={{ color: cardData.moveNameColor || cardData.descColor || 'inherit', fontSize: `${Number(cardData.moveNameSize) + 2}px`, fontWeight: cardData.moveNameWeight }}>{attack.damage}</span>}</div>
+                    {attack.desc && <div className="attack-desc" style={{ color: cardData.moveDescColor || cardData.descColor || 'inherit', fontSize: `${cardData.moveDescSize}px`, fontWeight: cardData.moveDescWeight }}>{attack.desc}</div>}
+                  </div>))}
+              </div>
+              {/* Footer */}
+              <div className="card-footer" style={{ '--stats-color': cardData.statsColor || undefined, color: cardData.statsColor || 'inherit', fontSize: `${cardData.statsSize}px`, fontWeight: cardData.statsWeight }}>
+                {cardData.showWeakRes && (<div className="footer-stats"><div className="stat"><span className="stat-label">{t.card.weakness} </span><span className="stat-icon">{weaknessIcon}</span><span className="stat-value weakness"> ×2</span></div><div className="stat"><span className="stat-label">{t.card.resistance} </span><span className="stat-icon">{resistanceIcon}</span><span className="stat-value resistance"> -30</span></div></div>)}
+                {cardData.showRetreat && (<div className="retreat-cost"><span className="stat-label">{t.card.cost} </span>
+                  {[...Array(Math.max(0, cardData.retreatCost))].map((_, i) => (<span key={i} className="retreat-icon">⚪</span>))}
+                </div>)}
+              </div>
+              {/* Author */}
+              <div className="card-author" style={{ color: cardData.authorColor || 'inherit', fontSize: `${cardData.authorSize}px`, fontWeight: cardData.authorWeight }}>
+                {t.card.illus} {cardData.author} • Card Creator
+              </div></div>
+
+            {/* Particles layer */}
+            {cardData.showParticles && (<div className={`particles-layer particles-${particleAnim}`}>
+              {[...Array(particleCount)].map((_, i) => (<span
+                key={i}
+                className={`particle particle-${i % 3}`}
+                style={{
+                  left: `${3 + (i * 31) % 94}%`,
+                  top: `${2 + (i * 37) % 96}%`,
+                  animationDelay: `${i * 0.5}s`,
+                  fontSize: `${10 + (i * 5) % 15}px`,
+                  position: 'absolute'
+                }}
+              >
+                {particleEmoji}
+              </span>))}
+            </div>)}
+
+          </div>
+          <div className="game-card-back" style={{
+            backgroundImage: cardData.cardBack
+              ? `url(${cardData.cardBack})`
+              : (() => {
+                const primary = cardData.cardBackPrimaryColor || cardData.primaryColor || typeData.primary;
+                const secondary = cardData.cardBackSecondaryColor || cardData.secondaryColor || typeData.secondary;
+                const gradientType = cardData.cardBackGradientType || 'radial';
+                const angle = cardData.cardBackGradientAngle || 135;
+
+                if (gradientType === 'solid') {
+                  return 'none';
+                } else if (gradientType === 'linear') {
+                  return `linear-gradient(${angle}deg, ${primary} 0%, ${secondary} 50%, ${primary} 100%)`;
+                } else {
+                  return `radial-gradient(ellipse at 30% 20%, ${primary}90 0%, transparent 50%), 
+                            radial-gradient(ellipse at 70% 80%, ${secondary}80 0%, transparent 50%),
+                            linear-gradient(135deg, ${primary} 0%, ${secondary} 50%, ${primary} 100%)`;
+                }
+              })(),
+            backgroundColor: cardData.cardBack ? 'transparent' : (cardData.cardBackGradientType === 'solid' ? (cardData.cardBackPrimaryColor || cardData.primaryColor || typeData.primary) : 'transparent'),
+            backgroundSize: cardData.cardBack ? `${cardBackSettings.zoom * 100}%` : 'cover',
+            backgroundPosition: cardData.cardBack ? `calc(50% + ${cardBackSettings.offsetX}px) calc(50% + ${cardBackSettings.offsetY}px)` : 'center',
+            backgroundRepeat: 'no-repeat',
+            border: cardData.cardBackShowBorder !== false ? `5px solid ${borderColor}` : 'none'
           }}>
-            {/* Header */}
-            <div className="card-header"><div className="card-header-left"><span className="stage-badge" style={{ background: cardData.primaryColor || typeData.primary, color: cardData.typeColor || 'inherit', fontSize: `${cardData.stageSize}px`, fontWeight: cardData.stageWeight }}>
-              {t.stages[STAGES.indexOf(cardData.stage)] || cardData.stage}
-            </span><span className="creature-name" style={{ color: cardData.nameColor || 'inherit', fontSize: `${cardData.nameSize}px`, fontWeight: cardData.nameWeight }}>{cardData.name}</span></div>
-              {cardData.showHP && (<div className="card-header-right"><span className="hp-value" style={{ color: cardData.hpColor || 'inherit', fontSize: `${cardData.hpSize}px`, fontWeight: cardData.hpWeight }}>{t.card.hp} {cardData.hp}</span><span className="type-icon">{displayIcon}</span></div>)}
-            </div>
-            {/* Image */}
-            <div className="card-image" style={imageStyle}>
-              {!image && (<span className="placeholder-icon">{displayIcon}</span>)}
-            </div>
-            {/* Description bar */}
-            {cardData.showDescription && cardData.description && (<div className="card-description" style={{ color: cardData.descColor || 'inherit', fontSize: `${cardData.descSize}px`, fontWeight: cardData.descWeight, lineHeight: cardData.descHeight || 1.3 }}>{cardData.description}</div>)}
-            {/* Attacks */}
-            <div className="attacks-container">
-              {attacks.map((attack) => (
-                <div key={attack.id} className="attack-card" style={{
-                  backgroundImage: attack.colorMode === 'gradient'
-                    ? `linear-gradient(180deg, ${attack.background}, ${attack.secondaryBackground})`
-                    : 'none',
-                  backgroundColor: attack.colorMode === 'gradient' ? 'transparent' : (attack.background || cardData.abilityBackground),
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'top center',
-                  backgroundSize: '100% 102%'
-                }}><div className="attack-header"><div className="attack-cost">
-                  {[...Array(Math.max(0, Math.min(10, attack.cost)))].map((_, i) => (<span key={i} className="energy-icon">{displayIcon}</span>))}
-                </div><span className="attack-name" style={{ color: cardData.moveNameColor || cardData.descColor || 'inherit', fontSize: `${cardData.moveNameSize}px`, fontWeight: cardData.moveNameWeight }}>{attack.name}</span>{attack.showDamage !== false && <span className="attack-damage" style={{ color: cardData.moveNameColor || cardData.descColor || 'inherit', fontSize: `${Number(cardData.moveNameSize) + 2}px`, fontWeight: cardData.moveNameWeight }}>{attack.damage}</span>}</div>
-                  {attack.desc && <div className="attack-desc" style={{ color: cardData.moveDescColor || cardData.descColor || 'inherit', fontSize: `${cardData.moveDescSize}px`, fontWeight: cardData.moveDescWeight }}>{attack.desc}</div>}
-                </div>))}
-            </div>
-            {/* Footer */}
-            <div className="card-footer" style={{ '--stats-color': cardData.statsColor || undefined, color: cardData.statsColor || 'inherit', fontSize: `${cardData.statsSize}px`, fontWeight: cardData.statsWeight }}>
-              {cardData.showWeakRes && (<div className="footer-stats"><div className="stat"><span className="stat-label">{t.card.weakness} </span><span className="stat-icon">{weaknessIcon}</span><span className="stat-value weakness"> ×2</span></div><div className="stat"><span className="stat-label">{t.card.resistance} </span><span className="stat-icon">{resistanceIcon}</span><span className="stat-value resistance"> -30</span></div></div>)}
-              {cardData.showRetreat && (<div className="retreat-cost"><span className="stat-label">{t.card.cost} </span>
-                {[...Array(Math.max(0, cardData.retreatCost))].map((_, i) => (<span key={i} className="retreat-icon">⚪</span>))}
-              </div>)}
-            </div>
-            {/* Author */}
-            <div className="card-author" style={{ color: cardData.authorColor || 'inherit', fontSize: `${cardData.authorSize}px`, fontWeight: cardData.authorWeight }}>
-              {t.card.illus} {cardData.author} • Card Creator
-            </div></div>
-
-          {/* Particles layer */}
-          {cardData.showParticles && (<div className={`particles-layer particles-${particleAnim}`}>
-            {[...Array(particleCount)].map((_, i) => (<span
-              key={i}
-              className={`particle particle-${i % 3}`}
-              style={{
-                left: `${3 + (i * 31) % 94}%`,
-                top: `${2 + (i * 37) % 96}%`,
-                animationDelay: `${i * 0.5}s`,
-                fontSize: `${10 + (i * 5) % 15}px`,
-                position: 'absolute'
-              }}
-            >
-              {particleEmoji}
-            </span>))}
-          </div>)}
-        </div></div>)
+            {!cardData.cardBack && (
+              <>
+                {/* Texture overlay */}
+                {cardData.cardBackTexture && cardData.cardBackTexture !== 'none' && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    WebkitMaskImage: CARD_TEXTURES[cardData.cardBackTexture],
+                    maskImage: CARD_TEXTURES[cardData.cardBackTexture],
+                    backgroundColor: (cardData.cardBackTextureColor || '#000000') + '30',
+                    pointerEvents: 'none'
+                  }}></div>
+                )}
+                {/* Decorative frame */}
+                {cardData.cardBackShowFrame !== false && (
+                  <>
+                    <div style={{
+                      position: 'absolute',
+                      inset: '12px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderRadius: '12px',
+                      pointerEvents: 'none'
+                    }}></div>
+                    <div style={{
+                      position: 'absolute',
+                      inset: '20px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '8px',
+                      pointerEvents: 'none'
+                    }}></div>
+                  </>
+                )}
+                {/* Center icon */}
+                {cardData.cardBackShowCenterIcon !== false && (
+                  <div style={{
+                    fontSize: '64px',
+                    opacity: 0.4,
+                    textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                    transform: 'rotate(-15deg)'
+                  }}>
+                    {displayIcon}
+                  </div>
+                )}
+                {/* Corner decorations */}
+                {cardData.cardBackShowCornerIcons !== false && (
+                  <>
+                    <div style={{ position: 'absolute', top: '30px', left: '30px', fontSize: '20px', opacity: 0.3 }}>{displayIcon}</div>
+                    <div style={{ position: 'absolute', top: '30px', right: '30px', fontSize: '20px', opacity: 0.3, transform: 'scaleX(-1)' }}>{displayIcon}</div>
+                    <div style={{ position: 'absolute', bottom: '30px', left: '30px', fontSize: '20px', opacity: 0.3, transform: 'rotate(180deg)' }}>{displayIcon}</div>
+                    <div style={{ position: 'absolute', bottom: '30px', right: '30px', fontSize: '20px', opacity: 0.3, transform: 'rotate(180deg) scaleX(-1)' }}>{displayIcon}</div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div >)
     });
 
     Card.displayName = 'Card';
@@ -1735,9 +2026,9 @@
                         onChange={(e) => updateCardData(weightKey, e.target.value)}
                         style={{ width: '100%' }}
                       >
-                        <option value="400">Normal</option>
-                        <option value="700">Bold</option>
-                        <option value="900">Black</option>
+                        <option value="400">{t.fontWeights?.normal || 'Normal'}</option>
+                        <option value="700">{t.fontWeights?.bold || 'Bold'}</option>
+                        <option value="900">{t.fontWeights?.black || 'Black'}</option>
                       </select>
                     </div>
                   )}
@@ -1756,25 +2047,42 @@
       const [attacks, setAttacks] = useState(() => getInitialAttacks(t));
       const [image, setImage] = useState(null);
       const [imageSettings, setImageSettings] = useState(INITIAL_IMAGE_SETTINGS);
+      const [cardBackSettings, setCardBackSettings] = useState(INITIAL_IMAGE_SETTINGS);
       const [imageLoading, setImageLoading] = useState(false);
       const [imageError, setImageError] = useState(null);
+      const [backImageLoading, setBackImageLoading] = useState(false);
+      const [backImageError, setBackImageError] = useState(null);
       const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
       const [isHovering, setIsHovering] = useState(false);
       const [autoRotate, setAutoRotate] = useState(true);
       const [activeTab, setActiveTab] = useState('visual');
       const [openSection, setOpenSection] = useState('image'); // Default open section for visual tab
       const [showResetConfirm, setShowResetConfirm] = useState(false);
+      const [isFlipped, setIsFlipped] = useState(false);
 
       // Save/Load State
       const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
       const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+      const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
+      const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+      const [isDeckBuilderOpen, setIsDeckBuilderOpen] = useState(false);
       const [savedCards, setSavedCards] = useState([]);
-      const [isLoading, setIsLoading] = useState(false); // Local loading state for save/load operations
 
       // Confirm Modal State
       const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
       const openConfirm = (title, message, onConfirm) => {
         setConfirmState({ isOpen: true, title, message, onConfirm });
+      };
+
+      const openDeckBuilder = async () => {
+        try {
+          await db.cleanupOld(30);
+          const cards = await db.getAll();
+          setSavedCards(cards);
+          setIsDeckBuilderOpen(true);
+        } catch (err) {
+          notify(t.deckBuilder?.errorLoad || "Could not load library", 'error');
+        }
       };
 
       const openLoadModal = async () => {
@@ -1791,16 +2099,79 @@
       };
 
       const handleSaveCard = async (saveName) => {
-        setIsLoading(true);
         try {
-          const cardElement = document.querySelector('.game-card');
-          const canvas = await html2canvas(cardElement, {
-            scale: 0.5,
-            backgroundColor: null,
-            logging: false,
-            useCORS: true
-          });
-          const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+          // Helper function to capture using isolation strategy
+          const captureSide = async (selector, isBack = false) => {
+            const original = document.querySelector(selector);
+            if (!original) return null;
+
+            const clone = original.cloneNode(true);
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '-9999px';
+            container.style.left = '-9999px';
+            container.style.width = '320px';
+            container.style.height = '448px';
+            container.style.zIndex = '-9999';
+            container.style.transform = 'none';
+            document.body.appendChild(container);
+
+            clone.style.position = 'absolute';
+            clone.style.top = '0';
+            clone.style.left = '0';
+            clone.style.transform = 'none';
+            clone.style.transition = 'none';
+            clone.style.animation = 'none';
+            clone.style.backfaceVisibility = 'visible';
+            clone.style.visibility = 'visible';
+            clone.style.opacity = '1';
+            clone.style.margin = '0';
+
+            if (isBack) {
+              clone.style.width = '320px';
+              clone.style.height = '448px';
+              clone.style.position = 'relative';
+              clone.style.transform = 'rotateY(0deg)';
+              clone.style.backfaceVisibility = 'visible';
+              clone.style.WebkitBackfaceVisibility = 'visible';
+            }
+
+            container.appendChild(clone);
+
+            // Remove particles from clone to avoid capturing them mid-animation
+            const particles = clone.querySelectorAll('.particles-layer, .particle');
+            particles.forEach(p => p.remove());
+
+            try {
+              // Short wait for rendering
+              await new Promise(resolve => setTimeout(resolve, 100));
+
+              const canvas = await html2canvas(container, {
+                scale: 12, // 4K+ quality: 320*12=3840px for max print quality
+                backgroundColor: null,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                width: 320, // Original card width
+                height: 448 // Original card height
+              });
+              document.body.removeChild(container);
+              return canvas.toDataURL('image/png', 1.0); // PNG for lossless quality
+            } catch (e) {
+              console.error(e);
+              if (document.body.contains(container)) document.body.removeChild(container);
+              return null;
+            }
+          };
+
+          // 1. Capture Front
+          const thumbnail = await captureSide('.game-card');
+
+          // 2. Capture Back
+          const thumbnailBack = await captureSide('.game-card-back', true);
+
+          // No flipping needed
+
 
           const newCard = {
             id: crypto.randomUUID(),
@@ -1809,11 +2180,15 @@
             cardData,
             attacks,
             image: image,
-            thumbnail: thumbnail
+            imageSettings: imageSettings,
+            cardBackSettings: cardBackSettings,
+            thumbnail: thumbnail,
+            thumbnailBack: thumbnailBack
           };
 
           await db.save(newCard);
           setIsSaveModalOpen(false);
+
           notify(t.prompts.saveSuccess || 'Card saved successfully!', 'success');
         } catch (err) {
           console.error('Save failed:', err);
@@ -1822,17 +2197,102 @@
           } else {
             notify(t.notifications?.saveError || 'Error saving card.', 'error');
           }
-        } finally {
-          setIsLoading(false);
         }
       };
 
       const handleLoadCard = (savedCard) => {
-        setCardData({ ...getInitialCardData(t), ...savedCard.cardData });
-        setAttacks(savedCard.attacks);
-        setImage(savedCard.image || null);
+        // Sanitize loaded card data for security
+        const sanitizedCardData = sanitizeCardData(savedCard.cardData || {});
+        setCardData({ ...getInitialCardData(t), ...sanitizedCardData });
+
+        // Sanitize attacks if present
+        if (savedCard.attacks && Array.isArray(savedCard.attacks)) {
+          setAttacks(savedCard.attacks.map(attack => ({
+            ...attack,
+            name: sanitize(String(attack.name || '').substring(0, 50)),
+            desc: sanitize(String(attack.desc || '').substring(0, 200))
+          })));
+        } else {
+          setAttacks(getInitialAttacks(t));
+        }
+
+        // Validate image
+        const isValidImage = !savedCard.image || (typeof savedCard.image === 'string' && savedCard.image.startsWith('data:image/'));
+        setImage(isValidImage ? savedCard.image : null);
+
+        setImageSettings(savedCard.imageSettings || INITIAL_IMAGE_SETTINGS);
+        setCardBackSettings(savedCard.cardBackSettings || INITIAL_IMAGE_SETTINGS);
         setIsLoadModalOpen(false);
         notify(t.notifications?.cardLoaded || 'Card loaded!', 'success');
+      };
+
+      const handleExportJSON = () => {
+        try {
+          const exportData = {
+            version: '1.0',
+            timestamp: Date.now(),
+            cardData,
+            attacks,
+            image,
+            imageSettings,
+            cardBackSettings
+          };
+          const jsonString = JSON.stringify(exportData, null, 2);
+          const blob = new Blob([jsonString], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${(cardData.name || 'card').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          // notify(t.notifications?.success || 'Exported!', 'success');
+        } catch (err) {
+          console.error('Export error:', err);
+          notify(t.notifications?.error || 'Export failed', 'error');
+        }
+      };
+
+      const handleImportJSON = (data) => {
+        if (!data || !data.cardData) {
+          notify(t.json.errorImport, 'error');
+          return;
+        }
+        try {
+          // Sanitize imported card data to prevent XSS/CSS injection
+          const sanitizedCardData = sanitizeCardData(data.cardData);
+          setCardData({ ...getInitialCardData(t), ...sanitizedCardData });
+
+          // Sanitize attacks
+          if (data.attacks && Array.isArray(data.attacks)) {
+            const sanitizedAttacks = data.attacks.map(attack => ({
+              ...attack,
+              id: attack.id || generateId(),
+              name: sanitize(String(attack.name || '').substring(0, 50)),
+              desc: sanitize(String(attack.desc || '').substring(0, 200)),
+              damage: typeof attack.damage === 'number' ? Math.min(Math.max(attack.damage, 0), 9999) : 0,
+              cost: typeof attack.cost === 'number' ? Math.min(Math.max(attack.cost, 0), 10) : 0,
+              background: isValidColor(attack.background) ? attack.background : '',
+              secondaryBackground: isValidColor(attack.secondaryBackground) ? attack.secondaryBackground : ''
+            }));
+            setAttacks(sanitizedAttacks);
+          }
+
+          // Validate image (must be a data URL or empty)
+          if (data.image !== undefined) {
+            const isValidImage = !data.image || (typeof data.image === 'string' && data.image.startsWith('data:image/'));
+            setImage(isValidImage ? data.image : null);
+          }
+
+          if (data.imageSettings) setImageSettings(data.imageSettings);
+          if (data.cardBackSettings) setCardBackSettings(data.cardBackSettings);
+
+          notify(t.json.successImport, 'success');
+        } catch (err) {
+          console.error('Import logic error:', err);
+          notify(t.notifications?.error || 'Import failed', 'error');
+        }
       };
 
       const handleDeleteCard = async (id) => {
@@ -1996,6 +2456,10 @@
         if (attacks.length <= 1) return;
         setAttacks(prev => prev.filter((_, i) => i !== index))
       }, [attacks.length]);
+
+
+
+
       const processImageFile = useCallback((file) => {
         if (!file) return;
         const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -2026,6 +2490,44 @@
         setImageSettings(INITIAL_IMAGE_SETTINGS);
         setImageError(null)
       }, []);
+
+      const processBackImageFile = useCallback((file) => {
+        if (!file) return;
+
+        const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          setBackImageError(t.imageEditor?.unsupportedFormat || 'Unsupported format');
+          return;
+        }
+
+        if (file.size > CARD_LIMITS.MAX_FILE_SIZE) {
+          setBackImageError(t.imageEditor?.fileTooLarge || 'File too large');
+          return;
+        }
+
+        setBackImageLoading(true);
+        setBackImageError(null);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateCardData('cardBack', e.target.result);
+          setCardBackSettings(INITIAL_IMAGE_SETTINGS);
+          setBackImageLoading(false);
+        };
+        reader.onerror = () => {
+          notify(t.notifications?.error || 'Error', 'error');
+          setBackImageError(t.imageEditor?.loading || 'Error');
+          setBackImageLoading(false);
+        };
+        reader.readAsDataURL(file);
+      }, [t, updateCardData, notify]);
+
+      const clearBackImage = useCallback(() => {
+        updateCardData('cardBack', null);
+        setCardBackSettings(INITIAL_IMAGE_SETTINGS);
+        setBackImageError(null);
+      }, [updateCardData]);
+
       const handleMouseMoveThrottled = useCallback((e) => {
         if (document.body.classList.contains('is-capturing')) return;
         if (!cardRef.current) return;
@@ -2051,14 +2553,6 @@
       const typeIcon = ELEMENT_TYPES[cardData.type]?.icon || '⭐';
       return (<div className="app-container">
         <div className="header-controls">
-          <div className="header-btn-group">
-            <button className="header-btn save" onClick={() => setIsSaveModalOpen(true)} title={t.buttons.save || 'Save'}>
-              💾 <span className="btn-text">{t.buttons.save || 'Save'}</span>
-            </button>
-            <button className="header-btn load" onClick={openLoadModal} title={t.buttons.load || 'Load'}>
-              📂 <span className="btn-text">{t.buttons.load || 'Load'}</span>
-            </button>
-          </div>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
@@ -2071,7 +2565,7 @@
             ))}
           </select>
         </div>
-        <h1 className="title">✨ {t.appTitle} ✨</h1><p className="subtitle">{t.appSubtitle}</p>
+        <h1 className="title" style={{ marginTop: '20px', marginBottom: '10px' }}>✨ {t.appTitle} ✨</h1><p className="subtitle" style={{ marginTop: '5px', marginBottom: '25px' }}>{t.appSubtitle}</p>
         <div className="main-layout">
           <div className="card-preview">
             {/* Card Preview */}
@@ -2080,6 +2574,7 @@
               attacks={attacks}
               image={image}
               imageSettings={imageSettings}
+              cardBackSettings={cardBackSettings}
               mousePos={mousePos}
               isHovering={isHovering}
               cardRef={cardRef}
@@ -2087,82 +2582,61 @@
               onMouseEnter={handleMouseEnterManual}
               onMouseLeave={handleMouseLeaveManual}
               autoRotate={autoRotate}
+              isFlipped={isFlipped}
               t={t}
             /><p className="hover-hint">{t.hoverHint}</p>
-            {/* Auto Rotate Button */}
-            <button
-              className={`auto-rotate-btn ${autoRotate ? 'active' : ''}`}
-              onClick={() => setAutoRotate(!autoRotate)}
-            >
-              {autoRotate ? '⏸️' : '▶️'} {t.buttons.autoRotate || "Vue 3D"}
-            </button>
+            {/* View Controls - 3D Rotate & Flip */}
+            <div style={{ display: 'flex', gap: '10px', width: '380px', margin: '0 auto 16px auto' }}>
+              <button
+                className={`auto-rotate-btn ${autoRotate ? 'active' : ''}`}
+                onClick={() => setAutoRotate(!autoRotate)}
+                style={{ flex: '1', padding: '8px 8px', fontSize: '13px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', minWidth: 0 }}
+              >
+                {autoRotate ? '⏸️' : '▶️'} <span style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.buttons.autoRotate || "Vue 3D"}</span>
+              </button>
+              <button
+                className={`auto-rotate-btn ${isFlipped ? 'active' : ''}`}
+                onClick={() => setIsFlipped(!isFlipped)}
+                style={{ flex: '1', padding: '8px 8px', fontSize: '13px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', minWidth: 0 }}
+              >
+                🔄 <span style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{isFlipped ? (t.buttons.showFront || 'Show Front') : (t.buttons.flipCard || 'Flip Card')}</span>
+              </button>
+            </div>
+
             {/* Download & Reset Group - Matches width */}
-            <div style={{ display: 'flex', flexDirection: 'column', width: 'fit-content', alignItems: 'stretch', marginTop: '24px' }}>
-              <div className="download-section" style={{ width: '100%', boxSizing: 'border-box', marginTop: 0 }}>
-                <p className="download-title" style={{ marginTop: 0 }}>{t.download.title}</p>
-                <div className="download-buttons">
-                  <button
-                    className="download-btn download-png"
-                    onClick={() => downloadAsPNG(cardRef.current, cardData.name || 'card')}
-                    title={t.download.pngTitle}
-                  >
-                    🖼️ PNG
-                  </button>
-                  <button
-                    className="download-btn download-jpg"
-                    onClick={() => downloadAsJPG(cardRef.current, cardData.name || 'card')}
-                    title={t.download.jpgTitle}
-                  >
-                    📷 JPG
-                  </button>
-                  <button
-                    className="download-btn download-webp"
-                    onClick={() => downloadAsWebP(cardRef.current, cardData.name || 'card')}
-                    title={t.download.webpTitle}
-                  >
-                    🌐 WebP
-                  </button>
-                  {isGifSupported && (
-                    <button
-                      className="download-btn download-gif"
-                      onClick={async (e) => {
-                        const btn = e.currentTarget;
-                        const originalText = btn.textContent;
-
-                        try {
-                          btn.textContent = t.download.capturing;
-                          btn.disabled = true;
-                          await downloadAsGIF(
-                            cardRef.current,
-                            cardData.name || 'card',
-                            3000,
-                            10,
-                            t,
-                            (text) => { btn.textContent = text; }
-                          );
-                        } catch (err) {
-                          // Silent catch
-                        } finally {
-                          btn.textContent = originalText;
-                          btn.disabled = false;
-                        }
-                      }}
-                      title={t.download.gifTitle}
-                    >
-                      🎬 GIF
+            <div style={{ display: 'flex', flexDirection: 'column', width: '380px', alignItems: 'stretch', marginTop: '10px' }}>
+              {/* Action Buttons Group */}
+              <div className="download-section" style={{ marginTop: '0' }}>
+                <div className="download-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {/* Row 1: Storage */}
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button className="header-btn save" onClick={() => setIsSaveModalOpen(true)} title={t.buttons.save || 'Save'} style={{ flex: 1, padding: '8px 2px', fontSize: '12px', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                      💾 <span className="btn-text" style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.buttons.save || 'Save'}</span>
                     </button>
-                  )}
-
+                    <button className="header-btn load" onClick={openLoadModal} title={t.buttons.load || 'Load'} style={{ flex: 1, padding: '8px 2px', fontSize: '12px', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                      📂 <span className="btn-text" style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.buttons.load || 'Load'}</span>
+                    </button>
+                    <button className="header-btn json" onClick={() => setIsJsonModalOpen(true)} title={t.buttons.json} style={{ flex: 1, padding: '8px 2px', fontSize: '12px', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                      ⚙️ <span className="btn-text" style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.buttons.json}</span>
+                    </button>
+                  </div>
+                  {/* Row 2: Export */}
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="header-btn print" onClick={openDeckBuilder} title={t.deckBuilder?.title} style={{ flex: 1, background: '#8b5cf6', padding: '8px 8px', fontSize: '13px', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      🖨️ <span className="btn-text" style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.deckBuilder?.title || "Deck Builder"}</span>
+                    </button>
+                    <button className="header-btn download" onClick={() => setIsDownloadModalOpen(true)} title={t.download.title} style={{ flex: 1, padding: '8px 8px', fontSize: '13px', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <span className="btn-text" style={{ whiteSpace: 'normal', lineHeight: '1.1', textAlign: 'center' }}>{t.download.title}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Reset Button */}
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: '6px' }}>
                 <button
                   className="no-capture"
-                  onClick={() => {
-                    setShowResetConfirm(true);
-                  }}
+                  onClick={() => setShowResetConfirm(true)}
                   style={{ width: '100%', padding: '12px', background: 'rgba(244, 67, 54, 0.1)', color: '#f44336', border: '1px solid rgba(244, 67, 54, 0.2)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}
                   onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(244, 67, 54, 0.2)'; }}
                   onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(244, 67, 54, 0.1)'; }}
@@ -2170,6 +2644,8 @@
                   {t.buttons.resetCard}
                 </button>
               </div>
+              {/* Legal Notice Link */}
+              <a href="legal.html" style={{ display: 'block', textAlign: 'center', color: '#555', fontSize: '11px', marginTop: '15px', textDecoration: 'none' }} onMouseOver={(e) => e.target.style.color = '#ffd700'} onMouseOut={(e) => e.target.style.color = '#555'}>{t.common?.legalNotice || 'Legal'}</a>
             </div>
           </div>
           {/* Editor Panel */}
@@ -2213,6 +2689,7 @@
                         onChange={(v) => updateCardData('name', v)}
                         maxLength={CARD_LIMITS.NAME_MAX_LENGTH}
                       />
+
                       <InputGroup
                         id="creature-hp"
                         label={t.labels.hp}
@@ -2230,14 +2707,16 @@
                       onChange={(v) => updateCardData('stage', v)}
                       options={stageOptions}
                     />
-                    <InputGroup
-                      id="creature-description"
-                      label={t.labels.description}
-                      value={cardData.description}
-                      onChange={(v) => updateCardData('description', v)}
-                      rows={2}
-                      maxLength={CARD_LIMITS.DESC_MAX_LENGTH}
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <InputGroup
+                        id="creature-description"
+                        label={t.labels.description}
+                        value={cardData.description}
+                        onChange={(v) => updateCardData('description', v)}
+                        rows={2}
+                        maxLength={CARD_LIMITS.DESC_MAX_LENGTH}
+                      />
+                    </div>
                     <InputGroup
                       id="creature-author"
                       label={t.labels.author}
@@ -2329,6 +2808,158 @@
                     />
                   </CollapsibleSection>
 
+                  <CollapsibleSection
+                    title={t.sections.cardBack || "Card Back"}
+                    icon="🔄"
+                    isOpen={openSection === 'cardBack'}
+                    onToggle={() => setOpenSection(openSection === 'cardBack' ? null : 'cardBack')}
+                  >
+                    <ImageEditor
+                      image={cardData.cardBack}
+                      settings={cardBackSettings}
+                      onSettingsChange={setCardBackSettings}
+                      isLoading={backImageLoading}
+                      error={backImageError}
+                      onUpload={processBackImageFile}
+                      onClear={clearBackImage}
+                      t={t}
+                    />
+
+                    {/* Border option - always visible */}
+                    <div style={{ marginTop: '12px' }}>
+                      <Checkbox
+                        id="cardback-border"
+                        label={t.cardBackOptions?.border || "Border"}
+                        checked={cardData.cardBackShowBorder !== false}
+                        onChange={(v) => updateCardData('cardBackShowBorder', v)}
+                      />
+                    </div>
+
+                    {/* Card Back Customization - Only show when no custom image */}
+                    {!cardData.cardBack && (
+                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#a0a0c0', fontWeight: 600 }}>
+                          {t.cardBackOptions?.title || "Default Back Style"}
+                        </h4>
+
+                        {/* Colors */}
+                        <div className="grid-2" style={{ marginBottom: '12px' }}>
+                          <InputGroup
+                            id="card-back-primary"
+                            label={t.cardBackOptions?.primaryColor || t.labels.primaryColor || "Primary"}
+                            type="color"
+                            value={cardData.cardBackPrimaryColor || cardData.primaryColor || '#ff6b35'}
+                            onChange={(v) => updateCardData('cardBackPrimaryColor', v)}
+                          />
+                          <InputGroup
+                            id="card-back-secondary"
+                            label={t.cardBackOptions?.secondaryColor || t.labels.secondaryColor || "Secondary"}
+                            type="color"
+                            value={cardData.cardBackSecondaryColor || cardData.secondaryColor || '#ff9e80'}
+                            onChange={(v) => updateCardData('cardBackSecondaryColor', v)}
+                          />
+                        </div>
+
+                        {/* Gradient Type */}
+                        <div style={{ marginBottom: '12px' }}>
+                          <label style={{ display: 'block', color: '#a0a0c0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>
+                            {t.cardBackOptions?.gradientType || "Gradient Type"}
+                          </label>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button
+                              className={`mode-toggle-btn ${cardData.cardBackGradientType === 'radial' ? 'active' : ''}`}
+                              onClick={() => updateCardData('cardBackGradientType', 'radial')}
+                              style={{ flex: 1 }}
+                            >
+                              {t.cardBackOptions?.radial || "Radial"}
+                            </button>
+                            <button
+                              className={`mode-toggle-btn ${cardData.cardBackGradientType === 'linear' ? 'active' : ''}`}
+                              onClick={() => updateCardData('cardBackGradientType', 'linear')}
+                              style={{ flex: 1 }}
+                            >
+                              {t.cardBackOptions?.linear || "Linear"}
+                            </button>
+                            <button
+                              className={`mode-toggle-btn ${cardData.cardBackGradientType === 'solid' ? 'active' : ''}`}
+                              onClick={() => updateCardData('cardBackGradientType', 'solid')}
+                              style={{ flex: 1 }}
+                            >
+                              {t.labels?.solid || "Solid"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Gradient Angle - Only for linear */}
+                        {cardData.cardBackGradientType === 'linear' && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', color: '#a0a0c0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>
+                              {t.cardBackOptions?.angle || "Angle"}: {cardData.cardBackGradientAngle || 135}°
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="360"
+                              step="15"
+                              value={cardData.cardBackGradientAngle || 135}
+                              onChange={(e) => updateCardData('cardBackGradientAngle', parseInt(e.target.value))}
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Decorative Elements */}
+                        <div style={{ marginTop: '12px' }}>
+                          <label style={{ display: 'block', color: '#a0a0c0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', fontWeight: '600' }}>
+                            {t.cardBackOptions?.elements || "Decorative Elements"}
+                          </label>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                            <Checkbox
+                              id="cardback-center-icon"
+                              label={t.cardBackOptions?.centerIcon || "Center Icon"}
+                              checked={cardData.cardBackShowCenterIcon !== false}
+                              onChange={(v) => updateCardData('cardBackShowCenterIcon', v)}
+                            />
+                            <Checkbox
+                              id="cardback-corner-icons"
+                              label={t.cardBackOptions?.cornerIcons || "Corner Icons"}
+                              checked={cardData.cardBackShowCornerIcons !== false}
+                              onChange={(v) => updateCardData('cardBackShowCornerIcons', v)}
+                            />
+                            <Checkbox
+                              id="cardback-frame"
+                              label={t.cardBackOptions?.frame || "Frame"}
+                              checked={cardData.cardBackShowFrame !== false}
+                              onChange={(v) => updateCardData('cardBackShowFrame', v)}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Texture */}
+                        <div style={{ marginTop: '12px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: cardData.cardBackTexture && cardData.cardBackTexture !== 'none' ? '2fr 1fr' : '1fr', gap: '8px' }}>
+                            <InputGroup
+                              id="cardback-texture"
+                              label={t.cardBackOptions?.texture || "Texture"}
+                              value={cardData.cardBackTexture || 'none'}
+                              onChange={(v) => updateCardData('cardBackTexture', v)}
+                              options={textureOptions}
+                            />
+                            {cardData.cardBackTexture && cardData.cardBackTexture !== 'none' && (
+                              <InputGroup
+                                id="cardback-texture-color"
+                                label={t.labels.color}
+                                type="color"
+                                value={cardData.cardBackTextureColor || '#000000'}
+                                onChange={(v) => updateCardData('cardBackTextureColor', v)}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CollapsibleSection>
+
                   {/* Presets Section - Moved from style tab */}
                   <CollapsibleSection
                     title={t.labels.presets || "Presets"}
@@ -2357,7 +2988,11 @@
                               cardInnerColorMode: 'solid',
                               cardInnerSecondaryBackground: `${data.primary}10`,
                               borderColor: data.primary,
-                              nameColor: '', hpColor: '', typeColor: '', descColor: '', statsColor: '', authorColor: '', textColor: ''
+                              nameColor: '', hpColor: '', typeColor: '', descColor: '', statsColor: '', authorColor: '', textColor: '',
+                              // Reset card back to use preset colors
+                              cardBackPrimaryColor: '', cardBackSecondaryColor: '', cardBackGradientType: 'radial', cardBackGradientAngle: 135,
+                              cardBackShowCenterIcon: true, cardBackShowCornerIcons: true, cardBackShowFrame: true,
+                              cardBackTexture: 'none', cardBackTextureColor: '#000000'
                             }));
                             setAttacks(prev => prev.map(a => ({
                               ...a,
@@ -2458,7 +3093,7 @@
                       {cardData.texture && cardData.texture !== 'none' && (
                         <InputGroup
                           id="texture-color"
-                          label="Color"
+                          label={t.labels.color}
                           type="color"
                           value={cardData.textureColor || '#000000'}
                           onChange={(v) => updateCardData('textureColor', v)}
@@ -2680,16 +3315,43 @@
               cards={savedCards}
               t={t}
             />
-            <ConfirmModal
-              isOpen={confirmState.isOpen}
-              onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
-              onConfirm={confirmState.onConfirm}
-              title={confirmState.title}
-              message={confirmState.message}
+
+            <JsonModal
+              isOpen={isJsonModalOpen}
+              onClose={() => setIsJsonModalOpen(false)}
+              onImport={handleImportJSON}
+              onExport={handleExportJSON}
               t={t}
             />
 
-          </div></div></div>)
+            <DownloadModal
+              isOpen={isDownloadModalOpen}
+              onClose={() => setIsDownloadModalOpen(false)}
+              t={t}
+              cardRef={cardRef}
+              cardName={cardData.name || 'card'}
+              isGifSupported={isGifSupported}
+              isFlipped={isFlipped}
+            />
+
+            <DeckBuilderModal
+              isOpen={isDeckBuilderOpen}
+              onClose={() => setIsDeckBuilderOpen(false)}
+              t={t}
+              savedCards={savedCards}
+              notify={notify}
+            />
+
+            <ConfirmModal
+              isOpen={confirmState.isOpen}
+              title={confirmState.title}
+              message={confirmState.message}
+              onConfirm={confirmState.onConfirm}
+              onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+              t={t}
+            />
+
+          </div></div></div >)
     }
     function CardCreator() {
       const [lang, setLang] = useState('en');
