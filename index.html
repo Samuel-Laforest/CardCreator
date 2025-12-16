@@ -1876,7 +1876,7 @@
                             linear-gradient(135deg, ${primary} 0%, ${secondary} 50%, ${primary} 100%)`;
                 }
               })(),
-            backgroundColor: cardData.cardBack ? 'transparent' : (cardData.cardBackGradientType === 'solid' ? (cardData.cardBackPrimaryColor || cardData.primaryColor || typeData.primary) : 'transparent'),
+            backgroundColor: cardData.cardBack ? 'transparent' : (cardData.cardBackPrimaryColor || cardData.primaryColor || typeData.primary),
             backgroundSize: cardData.cardBack ? `${cardBackSettings.zoom * 100}%` : 'cover',
             backgroundPosition: cardData.cardBack ? `calc(50% + ${cardBackSettings.offsetX}px) calc(50% + ${cardBackSettings.offsetY}px)` : 'center',
             backgroundRepeat: 'no-repeat',
